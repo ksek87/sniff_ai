@@ -1,2 +1,2 @@
 # sniff_ai
-Sniff AI - NLP for Perfumerie 
+Sniff AI - GenAI + NLP for Perfumerie 

@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  data-collection:
+    build:
+      context: .
+      dockerfile: data_collection/Dockerfile
+    container_name: sniffai-data-collection
+    volumes:
+      - ./data_collection:/app
+    networks:
+      - sniffai-network
+
+  model:
+    build:
+      context: .
+      dockerfile: model/Dockerfile
+    container_name: sniffai-model
+    volumes:
+      - ./model:/app
+    networks:
+      - sniffai-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: sniffai-frontend
+    ports:
+      - "3000:3000"
+    networks:
+      - sniffai-network
+
+networks:
+  sniffai-network:
+    driver: bridge

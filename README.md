@@ -43,7 +43,7 @@ Sniff AI generates custom fragrance compositions based on user-provided descript
 ## Project Phases & Progress
 
 ### Phase 1: Research and Data Collection
-- [ x] **Gather fragrance data** from online databases and public sources
+- [x] **Gather fragrance data** from online databases and public sources
 - [ ] **Curate dataset** of fragrance notes, descriptions, and scent families
 - [ ] **Compile paired data** of poetic descriptions and fragrance compositions for initial training
 

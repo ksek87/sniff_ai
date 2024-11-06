@@ -1,7 +1,7 @@
 pip~=23.0.1
 toml~=0.10.2
 setuptools~=65.5.0
-pandas~=2.2.3
+pandas>=1.0,<2.0
 beautifulsoup4~=4.12.3
 h11~=0.14.0
 attrs~=24.2.0

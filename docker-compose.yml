@@ -10,7 +10,7 @@ services:
       - ./data_collection:/app
     networks:
       - sniffai-network
-  
+
   model:
     build:
       context: .

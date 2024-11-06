@@ -2,8 +2,9 @@
     file: main.py
     desc: main driver to scrape fragrance dataset
 """
-from data_collection.scraper import scraper as sc
 import pandas as pd
+import scraper as sc
+
 
 if __name__ == "__main__":
     driver = sc.create_new_driver()

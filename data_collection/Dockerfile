@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y \
 COPY data_collection/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
-# Copy all the data collection code (scraper.py, main.py, etc.) into the container
+# Copy all the data collection code (data_scraper.py, main.py, etc.) into the container
 COPY data_collection/ /app/
 
 # Expose the port if your scraping service listens to a specific port (not mandatory for scraping)

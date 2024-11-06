@@ -12,7 +12,7 @@ else:
     print("Dataset not found. Running data_scraper to collect data.")
     # Run the data_scraper's main.py using subprocess
     scraper_script = os.path.join(os.path.dirname(__file__), 'data_scraper', 'main.py')
-    result = subprocess.run(['python', scraper_script], capture_output=True, text=True)
+    result = subprocess.run(['python', scraper_script], capture_output=True, text=True, check=True)
 
     # Output result of scraping
     if result.returncode == 0:

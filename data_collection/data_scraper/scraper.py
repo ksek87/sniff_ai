@@ -64,7 +64,7 @@ def scrape_fragrance_links(driver):
 
             print("Clicked 'Load more' button.")
 
-        except Exception as exc:
+        except Exception as exc: # pylint: disable=W0718
             print("No more items to load or error occurred:", exc)
             break  # Exit if the button is not found or another error occurs
 

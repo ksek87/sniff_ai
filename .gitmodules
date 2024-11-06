@@ -1,0 +1,3 @@
+[submodule "data_collection/fragrance"]
+	path = data_collection/fragrance
+	url = https://github.com/ksek87/fragrances

@@ -1,10 +1,10 @@
-version: '3'
+version: '3.8'
 
 services:
   data-collection:
     build:
-      context: .
-      dockerfile: data_collection/Dockerfile
+      context: ./data_collection
+      dockerfile: Dockerfile
     container_name: sniffai-data-collection
     volumes:
       - ./data_collection:/app
@@ -13,23 +13,46 @@ services:
 
   model:
     build:
-      context: .
-      dockerfile: model/Dockerfile
+      context: ./model
+      dockerfile: Dockerfile
     container_name: sniffai-model
     volumes:
       - ./model:/app
     networks:
       - sniffai-network
+    environment:
+      - MODEL_ENV=production  # Example environment variable
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sniffai-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    networks:
+      - sniffai-network
+    depends_on:
+      - model
+      - data-collection
+    environment:
+      - BACKEND_ENV=development  # Example environment variable
 
   frontend:
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: sniffai-frontend
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend:/app
     networks:
       - sniffai-network
+    depends_on:
+      - backend
 
 networks:
   sniffai-network:

@@ -47,6 +47,7 @@ Sniff AI generates custom fragrance compositions based on user-provided descript
 - [ ] **Curate dataset** of fragrance notes, descriptions, and scent families
 - [ ] **Compile paired data** of poetic descriptions and fragrance compositions for initial training
 
+**Dataset** was built in this project [Fragrances](https://github.com/ksek87/fragrances)
 ### Phase 2: Initial Model Development
 - [ ] **Fine-tune language model** (GPT, BERT, or similar) on paired text-fragrance data
 - [ ] **Train fragrance composition model** to create blends from semantic interpretations of descriptions

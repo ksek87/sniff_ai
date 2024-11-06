@@ -1,18 +1,21 @@
-import scraper as sc
-import pandas as pd
+import os
+import subprocess
 
-if __name__ == "__main__":
-    driver = sc.create_new_driver()
-    links = sc.scrape_fragrance_links(driver)
-    print('Number of links:', len(links))
+# Define the path to dataset.csv
+dataset_path = os.path.join(os.path.dirname(__file__), 'dataset.csv')
 
-    all_data = []
-    for link in links:
-        fragrance_data = sc.scrape_fragrance_data(link, driver)
-        all_data.append(fragrance_data)
+# Check if dataset.csv exists
+if os.path.exists(dataset_path):
+    print("Dataset found, no need to scrape.")
+else:
+    print("Dataset not found. Running scraper to collect data.")
+    # Run the scraper's main.py using subprocess
+    scraper_script = os.path.join(os.path.dirname(__file__), 'scraper', 'main.py')
+    result = subprocess.run(['python', scraper_script], capture_output=True, text=True)
 
-    df = pd.DataFrame(all_data)
-    df.to_csv("fragrance-data.csv")  # Save the data to CSV
-    driver.quit()
-
-    print('Dataset saved as CSV file')
+    # Output result of scraping
+    if result.returncode == 0:
+        print("Scraping completed successfully. Dataset created.")
+    else:
+        print("Scraping failed. Please check the scraper for issues.")
+        print("Error output:", result.stderr)

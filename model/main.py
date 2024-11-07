@@ -1,4 +1,3 @@
 """
-    file: model/main.py
+file: model/main.py
 """
-

@@ -8,8 +8,13 @@ services:
       - model
     environment:
       - ENV_VAR_NAME=production
+      - API_URL=http://backend:5000
     volumes:
       - ./backend:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      retries: 3
     networks:
       - app-network
 
@@ -44,6 +49,7 @@ services:
       - ./datacollection:/app
     networks:
       - app-network
+
 networks:
   app-network:
     driver: bridge

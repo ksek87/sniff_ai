@@ -5,14 +5,15 @@ FROM node:16
 WORKDIR /app
 
 # Copy the package.json and package-lock.json (if available) and install the dependencies
-COPY frontend/package*.json ./
+COPY package*.json ./  
+# Install frontend dependencies
 RUN npm install
 
 # Copy the rest of the frontend application code
-COPY frontend/ ./
+COPY . ./  
 
-# Expose port 3000 (or whatever your frontend uses)
+# Expose the correct port (3000 for React by default)
 EXPOSE 3000
 
-# Set the entry point to run the frontend app (adjust as needed)
+# Set the entry point to run the frontend app
 CMD ["npm", "start"]

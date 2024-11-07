@@ -10,28 +10,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '14'  # Choose your Node.js version
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  
 
-    - name: Install dependencies
-      run: |
-        cd frontend  # Change to the frontend directory
-        npm install
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm install
+          npm install typescript react react-dom --save-dev
 
-    - name: Build the app
-      run: |
-        cd frontend  # Change to the frontend directory
-        npm run build
+      - name: Build the app
+        run: |
+          cd frontend
+          npm run build
 
-    - name: Deploy to GitHub Pages
-      run: |
-        cd frontend  # Change to the frontend directory
-        npm install gh-pages
-        npm run deploy  # Assuming you have a deploy script in package.json to deploy to GitHub Pages
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub automatically provides this token for actions
+      - name: Deploy to GitHub Pages
+        run: |
+          cd frontend
+          npm install gh-pages
+          npm run deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

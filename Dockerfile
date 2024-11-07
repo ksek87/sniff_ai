@@ -1,32 +1,20 @@
-# Use Python 3.10-slim as a base image
-FROM python:3.10-slim
+# Use an official Python runtime as a parent image
+FROM python:3.9-slim
 
-# Set the working directory for the entire application
+# Set the working directory in the container
 WORKDIR /app
 
-# Install system dependencies (for Node.js and Python)
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-# Install Python dependencies
-COPY requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Install any needed packages specified in requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Node.js and frontend dependencies
-RUN curl -fsSL https://deb.nodesource.com/setup_16.x | bash - \
-    && apt-get install -y nodejs \
-    && npm install --prefix /app/frontend
+# Make port 80 available to the world outside this container
+EXPOSE 80
 
-# Copy the backend, model, and frontend code
-COPY backend/ /app/backend/
-COPY model/ /app/model/
-COPY frontend/ /app/frontend/
+# Define environment variable
+ENV NAME World
 
-# Expose the backend and frontend ports
-EXPOSE 8000 3000
-
-# Set entrypoint to run both backend (AI) and frontend (Node.js) services
-CMD ["bash", "-c", "python /app/backend/model.py & npm start --prefix /app/frontend"]
+# Run app.py when the container launches
+CMD ["python", "app.py"]

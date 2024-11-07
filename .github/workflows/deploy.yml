@@ -20,14 +20,17 @@ jobs:
 
     - name: Install dependencies
       run: |
+        cd frontend  # Change to the frontend directory
         npm install
 
     - name: Build the app
       run: |
+        cd frontend  # Change to the frontend directory
         npm run build
 
     - name: Deploy to GitHub Pages
       run: |
+        cd frontend  # Change to the frontend directory
         npm install gh-pages
         npm run deploy  # Assuming you have a deploy script in package.json to deploy to GitHub Pages
       env:

@@ -1,0 +1,34 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main 
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Choose your Node.js version
+
+    - name: Install dependencies
+      run: |
+        npm install
+
+    - name: Build the app
+      run: |
+        npm run build
+
+    - name: Deploy to GitHub Pages
+      run: |
+        npm install gh-pages
+        npm run deploy  # Assuming you have a deploy script in package.json to deploy to GitHub Pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub automatically provides this token for actions

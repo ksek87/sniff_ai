@@ -2,17 +2,18 @@
 FROM node:16
 
 # Set the working directory for the frontend
-WORKDIR /app
+WORKDIR /app/frontend
 
-# Copy the package.json and install the dependencies
-COPY frontend/package.json /app/package.json
+# Copy the package.json and package-lock.json (if available)
+COPY frontend/package*.json ./  
+# Install frontend dependencies
 RUN npm install
 
 # Copy the rest of the frontend application code
-COPY frontend/ /app/
+COPY frontend/ ./  
 
-# Expose port 3000 (or whatever your frontend uses)
-EXPOSE 3000
+# Expose port 5000
+EXPOSE 5000
 
-# Set the entry point to run the frontend app (adjust as needed)
+# Set the entry point to run the frontend app
 CMD ["npm", "start"]

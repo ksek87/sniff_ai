@@ -1,59 +1,55 @@
-version: '3.8'
-
+version: "3.8"
 services:
-  data-collection:
-    build:
-      context: ./data_collection
-      dockerfile: Dockerfile
-    container_name: sniffai-data-collection
-    volumes:
-      - ./data_collection:/app
-    networks:
-      - sniffai-network
-
-  model:
-    build:
-      context: ./model
-      dockerfile: Dockerfile
-    container_name: sniffai-model
-    volumes:
-      - ./model:/app
-    networks:
-      - sniffai-network
-    environment:
-      - MODEL_ENV=production  # Example environment variable
-
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: sniffai-backend
+    build: ./backend
     ports:
       - "5000:5000"
-    volumes:
-      - ./backend:/app
-    networks:
-      - sniffai-network
     depends_on:
       - model
-      - data-collection
     environment:
-      - BACKEND_ENV=development  # Example environment variable
+      - ENV_VAR_NAME=production
+      - API_URL=http://backend:5000
+    volumes:
+      - ./backend:/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      retries: 3
+    networks:
+      - app-network
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: sniffai-frontend
+    build: ./frontend
     ports:
       - "3000:3000"
+    environment:
+      - ENV_VAR_NAME=production
+      - API_URL=http://backend:5000
     volumes:
       - ./frontend:/app
     networks:
-      - sniffai-network
-    depends_on:
-      - backend
+      - app-network
+
+  model:
+    build: ./model
+    environment:
+      - ENV_VAR_NAME=production
+      - MODEL_PATH=/app/models
+    volumes:
+      - ./model:/app
+    networks:
+      - app-network
+
+  datacollection:
+    build: ./datacollection
+    environment:
+      - ENV_VAR_NAME=production
+      - DATA_PATH=/app/data
+    volumes:
+      - ./datacollection:/app
+    networks:
+      - app-network
 
 networks:
-  sniffai-network:
+  app-network:
     driver: bridge

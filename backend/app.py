@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from api.routes import api_blueprint
-from model import process_description
+from model.main import process_description
 
 """
 file: backend/main.py
@@ -10,16 +10,14 @@ app.register_blueprint(api_blueprint)
 
 @app.route('/generate_fragrance', methods=['POST'])
 def generate_fragrance():
+    """ Generate a fragrance based on a description """
     data = request.json
     description = data.get('description')
-    
     if not description:
         return jsonify({'error': 'Description is required'}), 400
-    
     # Process the description with the AI model
     generated_fragrance = process_description(description)
     # generated_fragrance = ai_model.process(description)
-    
     return jsonify({'fragrance': generated_fragrance})
 
 if __name__ == '__main__':

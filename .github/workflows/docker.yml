@@ -26,7 +26,11 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push
+      working-directory: ${{ github.workspace }}
       run: |
+        if [ ! -f "docker-compose.yml" ]; then
+          echo "Error: docker-compose.yml not found"
+          exit 1
+        fi
         docker-compose build
         docker-compose push
-          docker-compose push

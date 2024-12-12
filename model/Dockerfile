@@ -12,4 +12,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set the entry point to run the model (adjust as needed)
-CMD ["python", "model.py"]
+CMD ["python", "main.py"]

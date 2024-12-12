@@ -40,16 +40,6 @@ services:
     networks:
       - app-network
 
-  datacollection:
-    build: ./datacollection
-    environment:
-      - ENV_VAR_NAME=production
-      - DATA_PATH=/app/data
-    volumes:
-      - ./datacollection:/app
-    networks:
-      - app-network
-
 networks:
   app-network:
     driver: bridge

@@ -31,7 +31,9 @@ services:
       - app-network
 
   model:
-    build: ./model
+    build:
+      context: .
+      dockerfile: ./model/Dockerfile
     environment:
       - ENV_VAR_NAME=production
       - MODEL_PATH=/app/models

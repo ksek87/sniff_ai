@@ -20,6 +20,9 @@ Sniff AI is an AI-powered fragrance creation platform that translates poetic and
 
 Sniff AI generates custom fragrance compositions based on user-provided descriptions, ranging from simple phrases to poetic imagery. The platform leverages a dataset of existing fragrances for model training and reference, creating unique blends that align with user input.
 
+### Check out my Product Management documentation (roadmaps, features, etc) in [product-management](https://github.com/ksek87/sniff_ai/tree/main/product-management)
+
+### Analysis of Fragrances Dataset can be found [here](https://github.com/ksek87/sniff_ai/blob/dev/model/notebooks/dataset-analysis.ipynb)
 ---
 
 ## Key Features
@@ -44,10 +47,11 @@ Sniff AI generates custom fragrance compositions based on user-provided descript
 
 ### Phase 1: Research and Data Collection
 - [x] **Gather fragrance data** from online databases and public sources
-- [ ] **Curate dataset** of fragrance notes, descriptions, and scent families
-- [ ] **Compile paired data** of poetic descriptions and fragrance compositions for initial training
+- [x] **Curate dataset** of fragrance notes, descriptions, and scent concepts
+- [x] **Compile paired data** of poetic descriptions and fragrance compositions for initial training
 
 **Dataset** was built in this project [Fragrances](https://github.com/ksek87/fragrances)
+
 ### Phase 2: Initial Model Development
 - [ ] **Fine-tune language model** (GPT, BERT, or similar) on paired text-fragrance data
 - [ ] **Train fragrance composition model** to create blends from semantic interpretations of descriptions
@@ -87,7 +91,6 @@ Sniff AI generates custom fragrance compositions based on user-provided descript
 - [ ] **Additional Input Customization**: Allow users to select fragrance intensity, season, or occasion.
 - [ ] **Improved Fragrance Matching**: Refine similarity scoring for more precise fragrance outputs.
 - [ ] **User Accounts and Saved Fragrances**: Enable users to save generated compositions to their profiles.
-- [ ] **Mobile Version**: Develop a responsive mobile version of the platform.
 
 ---
 

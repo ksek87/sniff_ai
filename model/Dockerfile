@@ -1,15 +1,30 @@
-# Use Python 3.10 as a base image
-FROM python:3.10-slim
+# Use specific Python version for stability
+FROM python:3.10.12-slim
 
-# Set the working directory
+# Add build metadata
+LABEL maintainer="Sniff AI Team" \
+      version="1.0" \
+      description="ML Model Service"
+
+# Set working directory
 WORKDIR /app
 
-# Copy the requirements file and install dependencies
-COPY model/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+# Copy requirements from repo root
+COPY ../requirements.txt .
 
-# Copy the model files into the container
-COPY model/ /app/
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Set the entry point to run the model (adjust as needed)
-CMD ["python", "model.py"]
+# Copy model files
+COPY . .
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+# Set the entry point
+CMD ["python", "main.py"]

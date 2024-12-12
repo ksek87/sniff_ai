@@ -1,4 +1,4 @@
-name: Build and Push Docker Image to GitHub Container Registry
+name: Build and Push Docker Images with Docker Compose
 
 on:
   push:
@@ -29,12 +29,9 @@ jobs:
           username: ${{ github.actor }}  # GitHub username
           password: ${{ secrets.GITHUB_TOKEN }}  # GitHub token (automatically available in actions)
 
-      # Step 4: Build the Docker image
-      - name: Build Docker image
+      # Replace the build and push steps with docker-compose commands
+      - name: Build and push images with Docker Compose
         run: |
-          docker build -t ghcr.io/${{ github.repository }}:latest .
-
-      # Step 5: Push the Docker image to GitHub Container Registry
-      - name: Push Docker image
-        run: |
-          docker push ghcr.io/${{ github.repository }}:latest
+          docker-compose build
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker-compose push

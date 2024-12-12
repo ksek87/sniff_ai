@@ -16,14 +16,19 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'  
+          node-version: '16'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: |
           cd frontend
+          echo '{ "homepage": "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" }' >> package.json
           npm install
           npm install react@18 react-dom@18
-          npm install --save-dev typescript @types/react @types/react-dom @types/node
+
+          npm install --save-dev typescript @types/react @types/react-dom @types/node @babel/plugin-proposal-private-property-in-object
+
 
       - name: Type check
         run: |
@@ -31,6 +36,9 @@ jobs:
           npx tsc --noEmit
 
       - name: Build the app
+        env:
+          PUBLIC_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          REACT_APP_BASE_PATH: /${{ github.event.repository.name }}
         run: |
           cd frontend
           CI=false npm run build

@@ -22,6 +22,7 @@ jobs:
         run: |
           cd frontend
           npm install
+          npm install react@18 react-dom@18
           npm install --save-dev typescript @types/react @types/react-dom @types/node
 
       - name: Type check

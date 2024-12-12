@@ -22,17 +22,20 @@ jobs:
         run: |
           cd frontend
           npm install
-          npm install typescript react react-dom --save-dev
+          npm install --save-dev typescript @types/react @types/react-dom @types/node
+
+      - name: Type check
+        run: |
+          cd frontend
+          npx tsc --noEmit
 
       - name: Build the app
         run: |
           cd frontend
-          npm run build
+          CI=false npm run build
 
       - name: Deploy to GitHub Pages
-        run: |
-          cd frontend
-          npm install gh-pages
-          npm run deploy
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/build

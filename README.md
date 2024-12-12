@@ -21,6 +21,8 @@ Sniff AI is an AI-powered fragrance creation platform that translates poetic and
 Sniff AI generates custom fragrance compositions based on user-provided descriptions, ranging from simple phrases to poetic imagery. The platform leverages a dataset of existing fragrances for model training and reference, creating unique blends that align with user input.
 
 ### Check out my Product Management documentation (roadmaps, features, etc) in [product-management](https://github.com/ksek87/sniff_ai/tree/main/product-management)
+
+### Analysis of Fragrances Dataset can be found [here](https://github.com/ksek87/sniff_ai/blob/dev/model/notebooks/dataset-analysis.ipynb)
 ---
 
 ## Key Features

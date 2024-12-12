@@ -5,11 +5,11 @@ FROM python:3.10-slim
 WORKDIR /app
 
 # Copy the requirements file and install dependencies
-COPY model/requirements.txt /app/requirements.txt
-RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the model files into the container
-COPY model/ /app/
+# Copy all files from the current directory
+COPY . .
 
 # Set the entry point to run the model (adjust as needed)
 CMD ["python", "model.py"]

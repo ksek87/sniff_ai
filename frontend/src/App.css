@@ -1,42 +1,259 @@
 /* App.css */
 
-/* General styles */
+:root {
+  --color-bg: #faf9f7;
+  --color-surface: #ffffff;
+  --color-primary: #2d5016;
+  --color-accent: #7c9a52;
+  --color-text: #2c2c2c;
+  --color-muted: #888;
+  --color-border: #e2e0db;
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #f5f5f5;
-    color: #333;
+  margin: 0;
+  font-family: 'Georgia', serif;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.6;
 }
 
-/* Container */
-.container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 20px;
+/* Layout */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px 80px;
 }
 
-/* Header */
-.header {
-    background-color: #4CAF50;
-    color: white;
-    padding: 10px 0;
-    text-align: center;
+.app-header {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
-/* Main content */
-.main {
-    padding: 20px;
-    background-color: white;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.app-header h1 {
+  font-size: 2.4rem;
+  color: var(--color-primary);
+  margin: 0 0 8px;
+  letter-spacing: 0.04em;
 }
 
-/* Footer */
-.footer {
-    background-color: #333;
-    color: white;
-    text-align: center;
-    padding: 10px 0;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
+.app-tagline {
+  color: var(--color-muted);
+  font-style: italic;
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.app-main {
+  width: 100%;
+  max-width: 720px;
+}
+
+/* Input form */
+.description-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.description-input {
+  width: 100%;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 1rem;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  resize: vertical;
+  color: var(--color-text);
+  transition: border-color 0.2s;
+}
+
+.description-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.generate-btn {
+  align-self: flex-end;
+  padding: 12px 28px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.generate-btn:hover:not(:disabled) {
+  background: var(--color-accent);
+}
+
+.generate-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Error */
+.error-message {
+  background: #fff3f3;
+  color: #c0392b;
+  border: 1px solid #f5c6cb;
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+}
+
+/* Fragrance Card */
+.fragrance-card {
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.card-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.fragrance-name {
+  font-size: 1.7rem;
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.scent-family-badge {
+  background: var(--color-accent);
+  color: white;
+  font-size: 0.78rem;
+  font-family: Arial, sans-serif;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* Notes Pyramid */
+.notes-pyramid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.pyramid-tier {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.tier-label {
+  min-width: 52px;
+  font-size: 0.75rem;
+  font-family: Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  padding-top: 4px;
+}
+
+.tier-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.note-pill {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.88rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tier-top .note-pill { border-color: #b8d4e8; background: #eef6fb; }
+.tier-middle .note-pill { border-color: #c8e6c9; background: #f1f8f1; }
+.tier-base .note-pill { border-color: #d7ccc8; background: #f5f0ee; }
+
+.note-pct {
+  color: var(--color-muted);
+  font-size: 0.78rem;
+}
+
+/* Poetic description */
+.poetic-description {
+  border-left: 3px solid var(--color-accent);
+  margin: 0 0 24px;
+  padding: 8px 16px;
+  font-style: italic;
+  color: #555;
+  line-height: 1.8;
+}
+
+/* Similar fragrances */
+.similar-fragrances h4 {
+  font-size: 0.8rem;
+  font-family: Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  margin: 0 0 10px;
+}
+
+.similar-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.similar-chip {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.85rem;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.similarity-score {
+  color: var(--color-accent);
+  font-size: 0.78rem;
+}
+
+/* Card footer */
+.card-footer {
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+}
+
+.confidence {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-family: Arial, sans-serif;
+}
+
+/* Responsive */
+@media (max-width: 520px) {
+  .app-header h1 { font-size: 1.8rem; }
+  .fragrance-name { font-size: 1.3rem; }
+  .fragrance-card { padding: 20px; }
 }

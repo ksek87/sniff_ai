@@ -1,0 +1,39 @@
+import React, { useState } from 'react';
+
+interface Props {
+  onGenerate: (description: string) => void;
+  loading: boolean;
+}
+
+const DescriptionInput: React.FC<Props> = ({ onGenerate, loading }) => {
+  const [description, setDescription] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (description.trim()) {
+      onGenerate(description.trim());
+    }
+  };
+
+  return (
+    <form className="description-form" onSubmit={handleSubmit}>
+      <textarea
+        className="description-input"
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder="Describe your fragrance… e.g. 'an autumn walk through a pine forest after rain'"
+        rows={4}
+        disabled={loading}
+      />
+      <button
+        type="submit"
+        className="generate-btn"
+        disabled={loading || !description.trim()}
+      >
+        {loading ? 'Creating fragrance…' : 'Create Fragrance'}
+      </button>
+    </form>
+  );
+};
+
+export default DescriptionInput;

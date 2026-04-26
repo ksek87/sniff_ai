@@ -1,25 +1,19 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
+from flask_cors import CORS
+from dotenv import load_dotenv
 from api.routes import api_blueprint
-from model.main import process_description
 
-"""
-file: backend/main.py
-"""
+load_dotenv()
+
 app = Flask(__name__)
-app.register_blueprint(api_blueprint)
+CORS(app, origins=["http://localhost:3000", "https://ksek87.github.io"])
+app.register_blueprint(api_blueprint, url_prefix="/api/v1")
 
-@app.route('/generate_fragrance', methods=['POST'])
-def generate_fragrance():
-    """ Generate a fragrance based on a description """
-    data = request.json
-    description = data.get('description')
-    if not description:
-        return jsonify({'error': 'Description is required'}), 400
-    # Process the description with the AI model
-    generated_fragrance = process_description(description)
-    # generated_fragrance = ai_model.process(description)
-    return jsonify({'fragrance': generated_fragrance})
 
-if __name__ == '__main__':
+@app.route("/health")
+def health():
+    return jsonify({"status": "ok"})
+
+
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-    

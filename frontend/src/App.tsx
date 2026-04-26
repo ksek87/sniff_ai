@@ -1,47 +1,32 @@
-import axios from 'axios';
-import React, { useState } from 'react';
+import React from 'react';
+import './App.css';
+import DescriptionInput from './components/DescriptionInput';
+import FragranceCard from './components/FragranceCard';
+import { useFragranceGeneration } from './hooks/useFragranceGeneration';
 
-// Service function to interact with the backend
-export const generateFragrance = async (description: string): Promise<string> => {
-    const response = await axios.post("http://localhost:5000/generate", { description });
-    return response.data;
-};
-
-// FragranceGenerator component to handle input and display results
-const FragranceGenerator: React.FC = () => {
-    const [description, setDescription] = useState<string>(''); // State for description input
-    const [fragrance, setFragrance] = useState<string>(''); // State for generated fragrance
-
-    const handleGenerate = async () => {
-        if (description.trim() === '') {
-            return; // Prevent generating if description is empty
-        }
-        const result = await generateFragrance(description); // Call the generateFragrance function
-        setFragrance(result); // Set the generated fragrance result
-    };
-
-    return (
-        <div>
-            <input
-                type="text"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)} // Update description state on input change
-                placeholder="Enter fragrance description"
-            />
-            <button onClick={handleGenerate}>Generate Fragrance</button>
-            {fragrance && <p>Generated Fragrance: {fragrance}</p>} {/* Display fragrance result */}
-        </div>
-    );
-};
-
-// Main App component
 const App: React.FC = () => {
-    return (
-        <div>
-            <h1>Fragrance Generator</h1>
-            <FragranceGenerator /> {/* Render the FragranceGenerator component */}
-        </div>
-    );
+  const { composition, loading, error, generate } = useFragranceGeneration();
+
+  return (
+    <div className="app">
+      <header className="app-header">
+        <h1>Sniff AI</h1>
+        <p className="app-tagline">Describe a feeling. We'll create the scent.</p>
+      </header>
+
+      <main className="app-main">
+        <DescriptionInput onGenerate={generate} loading={loading} />
+
+        {error && (
+          <div className="error-message" role="alert">
+            {error}
+          </div>
+        )}
+
+        {composition && <FragranceCard composition={composition} />}
+      </main>
+    </div>
+  );
 };
 
 export default App;

@@ -1,20 +1,13 @@
-# Use an official Node.js runtime as the base image
-FROM node:16
+FROM node:18-slim
 
-# Set the working directory
 WORKDIR /app
 
-# Copy package files first
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
+RUN npm install --legacy-peer-deps
 
-# Copy the rest of the application code
 COPY . .
 
-# Expose the port (adjust if needed)
-EXPOSE 5000
+EXPOSE 3000
 
-# Set the entry point to run the frontend app
 CMD ["npm", "start"]

@@ -1,6 +1,7 @@
 version: "3.8"
 services:
   backend:
+    image: ghcr.io/ksek87/sniff_ai/backend:latest
     build: ./backend
     ports:
       - "5000:5000"
@@ -19,6 +20,7 @@ services:
       - app-network
 
   frontend:
+    image: ghcr.io/ksek87/sniff_ai/frontend:latest
     build: ./frontend
     ports:
       - "3000:3000"

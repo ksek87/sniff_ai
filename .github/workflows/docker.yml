@@ -25,12 +25,11 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and push
+    - name: Build images
       working-directory: ${{ github.workspace }}
-      run: |
-        if [ ! -f "docker-compose.yml" ]; then
-          echo "Error: docker-compose.yml not found"
-          exit 1
-        fi
-        docker-compose build
-        docker-compose push
+      run: docker-compose build
+
+    - name: Push images (main branch only)
+      if: github.ref == 'refs/heads/main'
+      working-directory: ${{ github.workspace }}
+      run: docker-compose push

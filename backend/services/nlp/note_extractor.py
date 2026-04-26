@@ -1,7 +1,6 @@
 import json
 import os
 import spacy
-from spacy.pipeline import EntityRuler
 
 _NOTES_PATH = os.path.join(os.path.dirname(__file__), "../../data/note_profiles.json")
 _FALLBACK_NOTES_PATH = os.path.join(

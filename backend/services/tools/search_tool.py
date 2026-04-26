@@ -2,8 +2,6 @@ from __future__ import annotations
 import os
 
 import chromadb
-from chromadb.config import Settings
-
 from services.nlp.embedder import Embedder
 
 _CHROMA_DIR = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_db")

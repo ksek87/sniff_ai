@@ -1,0 +1,11 @@
+frontend/node_modules
+frontend/build
+backend/chroma_db
+backend/__pycache__
+backend/**/__pycache__
+backend/.pytest_cache
+backend/tests
+*.env
+.env*
+.git
+.github

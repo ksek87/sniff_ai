@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   deploy:
@@ -11,37 +11,28 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '18'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
-        run: |
-          cd frontend
-          echo '{ "homepage": "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" }' >> package.json
-          npm install
-          npm install react@18 react-dom@18
-
-          npm install --save-dev typescript @types/react @types/react-dom @types/node @babel/plugin-proposal-private-property-in-object
-
+        run: cd frontend && npm ci --legacy-peer-deps
 
       - name: Type check
-        run: |
-          cd frontend
-          npx tsc --noEmit
+        run: cd frontend && npx tsc --noEmit
 
-      - name: Build the app
+      - name: Build
         env:
+          # Set BACKEND_URL as a GitHub Actions secret pointing to your deployed backend
+          # (e.g. https://ksek87-sniff-ai.hf.space). Falls back to localhost for local dev.
+          REACT_APP_API_URL: ${{ secrets.BACKEND_URL }}
           PUBLIC_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
-          REACT_APP_BASE_PATH: /${{ github.event.repository.name }}
-        run: |
-          cd frontend
-          CI=false npm run build
+        run: cd frontend && CI=false npm run build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

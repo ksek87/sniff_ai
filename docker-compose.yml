@@ -8,7 +8,7 @@ services:
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - CHROMA_PERSIST_DIR=/app/chroma_db
-      - FLASK_ENV=${FLASK_ENV:-development}
+      - FLASK_ENV=${FLASK_ENV}
     volumes:
       - ./backend:/app
       - ./data_collection:/app/data_collection:ro

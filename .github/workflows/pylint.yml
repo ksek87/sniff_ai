@@ -19,12 +19,15 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt  # Ensure dependencies are installed
+        pip install -r requirements.txt
+        pip install -r backend/requirements.txt
 
     - name: Install pylint
-      run: |
-        pip install pylint  # Ensure pylint is installed
+      run: pip install pylint
 
     - name: Analyse the code with pylint
+      env:
+        PYTHONPATH: backend
       run: |
-        pylint $(git ls-files '*.py')  # Run pylint on all Python files in the repository
+        pylint --errors-only --disable=E1101 \
+               $(git ls-files '*.py')

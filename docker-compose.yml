@@ -1,16 +1,17 @@
 version: "3.8"
 services:
   backend:
+    image: ghcr.io/ksek87/sniff_ai/backend:latest
     build: ./backend
     ports:
       - "5000:5000"
-    depends_on:
-      - model
     environment:
-      - ENV_VAR_NAME=production
-      - API_URL=http://backend:5000
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - CHROMA_PERSIST_DIR=/app/chroma_db
+      - FLASK_ENV=${FLASK_ENV}
     volumes:
       - ./backend:/app
+      - ./data_collection:/app/data_collection:ro
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
@@ -19,26 +20,14 @@ services:
       - app-network
 
   frontend:
+    image: ghcr.io/ksek87/sniff_ai/frontend:latest
     build: ./frontend
     ports:
       - "3000:3000"
     environment:
-      - ENV_VAR_NAME=production
-      - API_URL=http://backend:5000
+      - REACT_APP_API_URL=http://localhost:5000
     volumes:
       - ./frontend:/app
-    networks:
-      - app-network
-
-  model:
-    build:
-      context: .
-      dockerfile: ./model/Dockerfile
-    environment:
-      - ENV_VAR_NAME=production
-      - MODEL_PATH=/app/models
-    volumes:
-      - ./model:/app
     networks:
       - app-network
 

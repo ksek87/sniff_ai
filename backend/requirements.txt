@@ -1,0 +1,14 @@
+anthropic>=0.40.0
+chromadb>=0.5.23
+sentence-transformers>=3.3.0
+spacy>=3.8.0
+scikit-learn>=1.5.2
+flask>=3.0.3
+flask-cors>=4.0.0
+python-dotenv>=1.0.0
+SQLAlchemy>=2.0.36
+pandas>=2.2.3
+numpy>=2.0.2
+requests>=2.32.3
+Werkzeug>=3.1.2
+pytest>=7.0.0

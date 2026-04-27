@@ -10,6 +10,12 @@ __pycache__/
 model/notebooks/results/
 model/notebooks/trained_model/
 
+# Generated runtime artifacts
+backend/data/*.pkl
+backend/data/feedback.db
+backend/chroma_db/
+chroma_db/
+
 # Logs
 *.log
 

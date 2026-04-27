@@ -1,8 +1,8 @@
 import pytest
-from services.tools.validate_tool import validate_composition
+from services.tools.validate_tool import validate_composition, _VALID_FAMILIES
 
 
-def _make_composition(**overrides):
+def _comp(**overrides):
     base = {
         "name": "Test Accord",
         "scent_family": "Woody",
@@ -15,14 +15,62 @@ def _make_composition(**overrides):
     return base
 
 
+# ── Valid cases ───────────────────────────────────────────────────────────
+
 def test_valid_composition():
-    result = validate_composition(_make_composition())
+    result = validate_composition(_comp())
     assert result["valid"] is True
     assert result["errors"] == []
 
 
+@pytest.mark.parametrize("family", sorted(_VALID_FAMILIES))
+def test_all_canonical_families_are_valid(family):
+    result = validate_composition(_comp(scent_family=family))
+    assert result["valid"] is True
+
+
+def test_percentages_within_tolerance_99():
+    comp = _comp(
+        top_notes=[{"note": "Bergamot", "percentage": 20}],
+        middle_notes=[{"note": "Rose", "percentage": 50}],
+        base_notes=[{"note": "Cedarwood", "percentage": 29}],  # sums to 99
+    )
+    result = validate_composition(comp)
+    assert result["valid"] is True
+
+
+def test_percentages_within_tolerance_101():
+    comp = _comp(
+        top_notes=[{"note": "Bergamot", "percentage": 20}],
+        middle_notes=[{"note": "Rose", "percentage": 51}],
+        base_notes=[{"note": "Cedarwood", "percentage": 30}],  # sums to 101
+    )
+    result = validate_composition(comp)
+    assert result["valid"] is True
+
+
+def test_max_similar_fragrances_exactly_five():
+    comp = _comp(
+        similar_fragrances=[{"brand": "X", "name": str(i), "similarity_score": 0.9} for i in range(5)]
+    )
+    assert validate_composition(comp)["valid"] is True
+
+
+def test_tier_with_max_six_notes():
+    notes = [{"note": f"Note{i}", "percentage": 10} for i in range(6)]
+    comp = _comp(
+        top_notes=notes,
+        middle_notes=[{"note": "Rose", "percentage": 25}],
+        base_notes=[{"note": "Musk", "percentage": 15}],
+    )
+    # 60+25+15 = 100
+    assert validate_composition(comp)["valid"] is True
+
+
+# ── Invalid cases ─────────────────────────────────────────────────────────
+
 def test_percentages_not_summing_to_100():
-    comp = _make_composition(
+    comp = _comp(
         top_notes=[{"note": "Bergamot", "percentage": 10}],
         middle_notes=[{"note": "Rose", "percentage": 40}],
         base_notes=[{"note": "Cedarwood", "percentage": 20}],
@@ -33,14 +81,19 @@ def test_percentages_not_summing_to_100():
 
 
 def test_unknown_scent_family():
-    comp = _make_composition(scent_family="Imaginary")
-    result = validate_composition(comp)
+    result = validate_composition(_comp(scent_family="Imaginary"))
     assert result["valid"] is False
     assert any("Imaginary" in e for e in result["errors"])
 
 
+def test_empty_scent_family_is_valid():
+    # Empty string bypasses the family check (the field is optional)
+    result = validate_composition(_comp(scent_family=""))
+    assert result["valid"] is True
+
+
 def test_too_many_similar_fragrances():
-    comp = _make_composition(
+    comp = _comp(
         similar_fragrances=[{"brand": "X", "name": str(i), "similarity_score": 0.9} for i in range(6)]
     )
     result = validate_composition(comp)
@@ -50,3 +103,45 @@ def test_too_many_similar_fragrances():
 def test_empty_composition():
     result = validate_composition({})
     assert result["valid"] is False
+
+
+def test_tier_with_zero_notes_top():
+    comp = _comp(top_notes=[])
+    result = validate_composition(comp)
+    assert result["valid"] is False
+    assert any("top" in e for e in result["errors"])
+
+
+def test_tier_with_zero_notes_middle():
+    comp = _comp(middle_notes=[])
+    result = validate_composition(comp)
+    assert result["valid"] is False
+    assert any("middle" in e for e in result["errors"])
+
+
+def test_tier_with_zero_notes_base():
+    comp = _comp(base_notes=[])
+    result = validate_composition(comp)
+    assert result["valid"] is False
+    assert any("base" in e for e in result["errors"])
+
+
+def test_tier_with_seven_notes():
+    seven_notes = [{"note": f"Note{i}", "percentage": 10} for i in range(7)]
+    comp = _comp(top_notes=seven_notes, middle_notes=[], base_notes=[])
+    result = validate_composition(comp)
+    assert result["valid"] is False
+    assert any("7 notes" in e for e in result["errors"])
+
+
+def test_multiple_errors_reported():
+    # Both bad family AND bad percentages
+    comp = _comp(
+        scent_family="Imaginary",
+        top_notes=[{"note": "X", "percentage": 10}],
+        middle_notes=[],
+        base_notes=[],
+    )
+    result = validate_composition(comp)
+    assert result["valid"] is False
+    assert len(result["errors"]) >= 2

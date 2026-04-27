@@ -1,0 +1,102 @@
+"""
+conftest.py — session-level stubs and shared fixtures.
+
+sentence_transformers is stubbed in sys.modules at the very top so the
+Embedder singleton never tries to download or load model weights.
+All fixtures import app *inside* their context so module-level singletons
+are constructed while the patches are active.
+"""
+import sys
+
+import numpy as np
+from unittest.mock import MagicMock
+
+# ── Stub sentence_transformers before any app code can import it ──────────
+_st_model = MagicMock()
+_st_model.encode.return_value = np.zeros(384, dtype=np.float32)  # has .tolist()
+_st_module = MagicMock()
+_st_module.SentenceTransformer.return_value = _st_model
+sys.modules.setdefault("sentence_transformers", _st_module)
+# ─────────────────────────────────────────────────────────────────────────
+
+import pytest
+from unittest.mock import patch
+
+
+MOCK_COMPOSITION = {
+    "name": "Autumn Pine Accord",
+    "scent_family": "Woody",
+    "top_notes": [
+        {"note": "Petitgrain", "percentage": 15},
+        {"note": "Bergamot", "percentage": 10},
+    ],
+    "middle_notes": [
+        {"note": "Pine Needle", "percentage": 30},
+        {"note": "Clary Sage", "percentage": 15},
+    ],
+    "base_notes": [
+        {"note": "Cedarwood", "percentage": 20},
+        {"note": "Vetiver", "percentage": 10},
+    ],
+    "poetic_description": "An autumn walk through a pine forest after rain.",
+    "similar_fragrances": [
+        {"brand": "Test Brand", "name": "Forest Walk", "similarity_score": 0.88}
+    ],
+    "confidence_score": 0.92,
+}
+
+
+@pytest.fixture()
+def client():
+    """
+    Flask test client with every external dependency mocked:
+    - Claude API (anthropic)          – no outbound calls
+    - ChromaDB (_get_collection)      – returns deterministic fixture data
+    - NLP model loaders               – no filesystem / download
+    - Feedback store (save/metrics)   – in-memory, no SQLite writes
+    Rate limiting is disabled so tests don't interfere with each other.
+    """
+    with (
+        patch("services.nlp.note_extractor.NoteExtractor._load_notes"),
+        patch("services.nlp.note_extractor.NoteExtractor._build_ruler"),
+        patch("services.nlp.scent_classifier.ScentClassifier._load_or_train"),
+        patch("services.agents.orchestrator.anthropic"),
+        patch("services.agents.composer.anthropic"),
+        patch("services.tools.search_tool._get_collection") as mock_coll,
+        patch("services.generate_fragrance.orchestrator.run") as mock_orch,
+        patch("services.generate_fragrance.composer.run") as mock_comp,
+        patch("services.feedback.save_feedback"),
+        patch("services.feedback.get_metrics") as mock_metrics,
+    ):
+        mock_coll.return_value.count.return_value = 100
+        mock_coll.return_value.query.return_value = {
+            "metadatas": [[
+                {
+                    "brand": "TestBrand", "name": "TestFrag",
+                    "description": "a test fragrance", "notes_list": "[]",
+                    "concepts_list": "[]",
+                }
+            ]],
+            "distances": [[0.15]],
+        }
+        mock_orch.return_value = {
+            "reference_fragrances": [],
+            "recommended_notes": {},
+            "reasoning": "test",
+        }
+        mock_comp.return_value = MOCK_COMPOSITION
+        mock_metrics.return_value = {
+            "total_feedback": 5,
+            "average_rating": 4.2,
+            "rating_distribution": {"1": 0, "2": 0, "3": 1, "4": 2, "5": 2},
+        }
+
+        from app import app
+        from limiter import limiter as _limiter
+        app.config["TESTING"] = True
+        # Flask-Limiter 4.x caches self.enabled at init_app time, so we must
+        # set the attribute directly to disable rate limiting in tests.
+        _limiter.enabled = False
+        with app.test_client() as c:
+            yield c
+        _limiter.enabled = True

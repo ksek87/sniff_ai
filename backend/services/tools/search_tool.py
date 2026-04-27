@@ -25,7 +25,7 @@ def _get_collection():
 
 def search_fragrance_db(
     query: str,
-    scent_family: str | None = None,
+    scent_family: str | None = None,  # kept for API compatibility; semantic search handles family naturally
     top_k: int = 10,
 ) -> list[dict]:
     collection = _get_collection()
@@ -34,14 +34,9 @@ def search_fragrance_db(
 
     query_vector = _embedder.encode(query)
 
-    where: dict | None = None
-    if scent_family:
-        where = {"scent_family": {"$eq": scent_family}}
-
     results = collection.query(
         query_embeddings=[query_vector],
         n_results=min(top_k, collection.count()),
-        where=where,
         include=["metadatas", "distances"],
     )
 

@@ -10,13 +10,10 @@ def generate_fragrance_from_description(
     context = preprocess(description)
     context["pinned_notes"] = pinned_notes or []
 
-    # Seed the orchestrator with top-k semantic matches upfront
-    initial_hits = search_fragrance_db(
-        query=description,
-        scent_family=context["predicted_family"] if context["family_confidence"] > 0.5 else None,
-        top_k=10,
-    )
-    context["initial_hits"] = initial_hits
+    # Seed the orchestrator with a broad semantic search upfront.
+    # The orchestrator receives these as pre-loaded context so it can skip
+    # its own initial search call and go straight to profiling notes.
+    context["initial_hits"] = search_fragrance_db(query=description, top_k=10)
 
     orchestrator_result = orchestrator.run(context)
     composition = composer.run(description, orchestrator_result)

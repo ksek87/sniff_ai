@@ -33,7 +33,7 @@ CANONICAL_FAMILIES = sorted(set(_CONCEPT_MAP.values()))
 def _concepts_to_family(concepts_raw: str) -> str | None:
     try:
         concepts = ast.literal_eval(concepts_raw)
-    except Exception:
+    except (ValueError, SyntaxError):
         return None
     for concept in concepts:
         if concept in _CONCEPT_MAP:

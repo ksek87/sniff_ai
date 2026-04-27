@@ -4,6 +4,7 @@ and prepare the context the Composition Agent needs.
 """
 from __future__ import annotations
 import json
+import logging
 import os
 
 import anthropic
@@ -12,7 +13,9 @@ from services.tools.search_tool import search_fragrance_db
 from services.tools.note_profile_tool import get_note_profile
 from services.tools.validate_tool import validate_composition
 
-_MODEL = "claude-sonnet-4-6"
+logger = logging.getLogger(__name__)
+
+_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 _MAX_TOOL_ROUNDS = 5
 
 _TOOLS: list[dict] = [
@@ -27,10 +30,6 @@ _TOOLS: list[dict] = [
             "type": "object",
             "properties": {
                 "query": {"type": "string", "description": "Descriptive search query"},
-                "scent_family": {
-                    "type": "string",
-                    "description": "Optional scent family filter (e.g. 'Woody', 'Floral')",
-                },
                 "top_k": {
                     "type": "integer",
                     "description": "Number of results to return (1–15)",
@@ -82,23 +81,18 @@ _SYSTEM_PROMPT = """You are a master perfumer's assistant with deep knowledge of
 Your job is to use the available tools to build rich, grounded context for creating a new fragrance composition from a user's description.
 
 Strategy:
-1. Search the fragrance database to find real-world reference fragrances semantically similar to the description.
-2. Use get_note_profile to understand the volatility and pairing properties of the most relevant notes from those references.
+1. Review the pre-loaded semantic search results provided in the user message.
+2. Use get_note_profile to understand the volatility and pairing properties of the most relevant notes.
 3. If the user has specified pinned notes, call get_note_profile on those as well.
-4. Think about what combination of notes best captures the user's description, informed by the references.
+4. Call search_fragrance_db only if you need more targeted references beyond the pre-loaded ones.
 5. Return a JSON summary of your findings in this exact structure:
 
 {
-  "reference_fragrances": [...],   // top references from search
+  "reference_fragrances": [...],
   "recommended_notes": {
     "top": ["note1", "note2"],
     "middle": ["note3", "note4"],
     "base": ["note5", "note6"]
-  },
-  "pinned_notes_placed": {         // where pinned notes were placed
-    "top": [],
-    "middle": [],
-    "base": []
   },
   "reasoning": "Brief explanation of why these notes fit the description"
 }
@@ -125,20 +119,30 @@ def run(context: dict) -> dict:
         detected_notes: list[str]
         predicted_family: str
         family_confidence: float
-        pinned_notes: list[str]  (optional)
+        pinned_notes: list[str]
+        initial_hits: list[dict]   pre-computed semantic search results
     """
     client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
     user_message = (
         f"Create a fragrance composition for this description:\n\n"
         f"\"{context['description']}\"\n\n"
-        f"NLP preprocessing has detected these notes explicitly mentioned: "
+        f"Detected notes (explicitly mentioned): "
         f"{context.get('detected_notes', []) or 'none'}\n"
         f"Predicted scent family: {context.get('predicted_family', 'unknown')} "
         f"(confidence: {context.get('family_confidence', 0):.0%})\n"
     )
     if context.get("pinned_notes"):
-        user_message += f"User has requested these notes must be included: {context['pinned_notes']}\n"
+        user_message += f"Required notes (user-pinned): {context['pinned_notes']}\n"
+
+    initial_hits = context.get("initial_hits", [])
+    if initial_hits:
+        user_message += (
+            f"\nPre-loaded semantic search results ({len(initial_hits)} references):\n"
+            f"{json.dumps(initial_hits[:5], indent=2)}\n\n"
+            f"Use these as your primary reference set. Call search_fragrance_db "
+            f"only if you need additional targeted results."
+        )
 
     messages = [{"role": "user", "content": user_message}]
 
@@ -154,11 +158,9 @@ def run(context: dict) -> dict:
         messages.append({"role": "assistant", "content": response.content})
 
         if response.stop_reason == "end_turn":
-            # Extract the final JSON summary from the last text block
             for block in reversed(response.content):
                 if hasattr(block, "text"):
                     text = block.text.strip()
-                    # Extract JSON if wrapped in markdown code fence
                     if "```" in text:
                         start = text.find("{")
                         end = text.rfind("}") + 1
@@ -170,10 +172,13 @@ def run(context: dict) -> dict:
                         return {"reasoning": text, "reference_fragrances": [], "recommended_notes": {}}
             return {}
 
+        if response.stop_reason == "max_tokens":
+            logger.warning("Orchestrator hit max_tokens limit before completing")
+            break
+
         if response.stop_reason != "tool_use":
             break
 
-        # Process tool calls
         tool_results = []
         for block in response.content:
             if block.type == "tool_use":

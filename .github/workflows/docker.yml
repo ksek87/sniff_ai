@@ -25,7 +25,8 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build backend image
-      run: docker build -t sniff-ai-backend ./backend
+      # Build context is repo root so the Dockerfile can COPY data_collection/dataset.csv
+      run: docker build -f backend/Dockerfile -t sniff-ai-backend .
 
     - name: Build frontend image
       run: docker build -t sniff-ai-frontend ./frontend

@@ -1,17 +1,22 @@
 FROM python:3.11-slim
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    cmake \
+    build-essential cmake curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt ./
+COPY backend/requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY backend/ ./
 
-EXPOSE 5000
+# Dataset lands at /data_collection/dataset.csv — matches the relative path
+# computed by ingest_dataset.py (scripts/../../data_collection/dataset.csv)
+COPY data_collection/dataset.csv /data_collection/dataset.csv
 
-CMD ["python", "app.py"]
+RUN chmod +x start.sh
+
+EXPOSE 7860
+
+CMD ["./start.sh"]

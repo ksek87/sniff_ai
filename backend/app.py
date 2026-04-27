@@ -1,12 +1,21 @@
+import os
 from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from api.routes import api_blueprint
+from limiter import limiter
 
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:3000", "https://ksek87.github.io"])
+
+_origins = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:3000,https://ksek87.github.io",
+).split(",")
+CORS(app, origins=[o.strip() for o in _origins])
+
+limiter.init_app(app)
 app.register_blueprint(api_blueprint, url_prefix="/api/v1")
 
 
@@ -16,4 +25,4 @@ def health():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 7860)))

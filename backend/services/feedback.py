@@ -59,14 +59,19 @@ def save_feedback(
 def get_metrics() -> dict:
     engine = _get_engine()
     with engine.connect() as conn:
-        total = conn.execute(text("SELECT COUNT(*) FROM feedback")).scalar() or 0
-        avg_rating = conn.execute(text("SELECT AVG(rating) FROM feedback")).scalar()
-        distribution = {
-            str(i): conn.execute(
-                text("SELECT COUNT(*) FROM feedback WHERE rating = :r"), {"r": i}
-            ).scalar() or 0
-            for i in range(1, 6)
-        }
+        row = conn.execute(
+            text("SELECT COUNT(*), AVG(rating) FROM feedback")
+        ).one()
+        total, avg_rating = row[0] or 0, row[1]
+
+        dist_rows = conn.execute(
+            text("SELECT rating, COUNT(*) FROM feedback GROUP BY rating")
+        ).fetchall()
+
+    distribution = {str(i): 0 for i in range(1, 6)}
+    for rating, count in dist_rows:
+        distribution[str(rating)] = count
+
     return {
         "total_feedback": total,
         "average_rating": round(float(avg_rating), 2) if avg_rating else None,

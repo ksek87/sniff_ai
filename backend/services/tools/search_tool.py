@@ -23,25 +23,16 @@ def _get_collection():
     return _collection
 
 
-def search_fragrance_db(
-    query: str,
-    scent_family: str | None = None,
-    top_k: int = 10,
-) -> list[dict]:
+def search_fragrance_db(query: str, top_k: int = 10) -> list[dict]:
     collection = _get_collection()
     if collection.count() == 0:
         return []
 
     query_vector = _embedder.encode(query)
 
-    where: dict | None = None
-    if scent_family:
-        where = {"scent_family": {"$eq": scent_family}}
-
     results = collection.query(
         query_embeddings=[query_vector],
         n_results=min(top_k, collection.count()),
-        where=where,
         include=["metadatas", "distances"],
     )
 

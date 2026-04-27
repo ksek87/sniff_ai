@@ -4,12 +4,15 @@ the final structured FragranceComposition JSON.
 """
 from __future__ import annotations
 import json
+import logging
 import os
 import re
 
 import anthropic
 
-_MODEL = "claude-sonnet-4-6"
+logger = logging.getLogger(__name__)
+
+_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 
 _SYSTEM_PROMPT = """You are a master perfumer who writes the final fragrance formula and description.
 
@@ -69,10 +72,10 @@ def run(description: str, orchestrator_result: dict) -> dict:
 
     try:
         composition = json.loads(raw)
-        # Normalise percentages to sum to 100 if slightly off
         _normalise_percentages(composition)
         return composition
-    except (json.JSONDecodeError, KeyError):
+    except (json.JSONDecodeError, KeyError) as exc:
+        logger.warning("Composer returned malformed JSON (%s); using fallback. Raw: %.200s", exc, raw)
         return _fallback_composition(description, orchestrator_result)
 
 

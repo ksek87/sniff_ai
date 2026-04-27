@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 from api.routes import api_blueprint
+from limiter import limiter
 
 load_dotenv()
 
@@ -14,6 +15,7 @@ _origins = os.getenv(
 ).split(",")
 CORS(app, origins=[o.strip() for o in _origins])
 
+limiter.init_app(app)
 app.register_blueprint(api_blueprint, url_prefix="/api/v1")
 
 

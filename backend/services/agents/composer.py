@@ -12,7 +12,7 @@ import anthropic
 
 logger = logging.getLogger(__name__)
 
-_MODEL = "claude-sonnet-4-6"
+_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 
 _SYSTEM_PROMPT = """You are a master perfumer who writes the final fragrance formula and description.
 

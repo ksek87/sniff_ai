@@ -15,7 +15,7 @@ from services.tools.validate_tool import validate_composition
 
 logger = logging.getLogger(__name__)
 
-_MODEL = "claude-sonnet-4-6"
+_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 _MAX_TOOL_ROUNDS = 5
 
 _TOOLS: list[dict] = [

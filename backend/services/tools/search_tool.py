@@ -23,11 +23,7 @@ def _get_collection():
     return _collection
 
 
-def search_fragrance_db(
-    query: str,
-    scent_family: str | None = None,  # kept for API compatibility; semantic search handles family naturally
-    top_k: int = 10,
-) -> list[dict]:
+def search_fragrance_db(query: str, top_k: int = 10) -> list[dict]:
     collection = _get_collection()
     if collection.count() == 0:
         return []

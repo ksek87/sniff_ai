@@ -65,12 +65,11 @@ def feedback():
 @limiter.limit("30 per hour")
 def search():
     query = _sanitize(request.args.get("q", ""))
-    family = request.args.get("family")
     if not query:
         return jsonify({"error": "q parameter is required"}), 400
     if len(query) > _MAX_DESCRIPTION:
         return jsonify({"error": f"q must be {_MAX_DESCRIPTION} characters or fewer"}), 400
-    results = search_fragrance_db(query, scent_family=family, top_k=10)
+    results = search_fragrance_db(query, top_k=10)
     return jsonify(results)
 
 

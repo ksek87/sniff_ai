@@ -1,22 +1,11 @@
 from .note_extractor import NoteExtractor
 from .embedder import Embedder
 from .scent_classifier import ScentClassifier
+from services.config import CANONICAL_FAMILIES
 
 _note_extractor = NoteExtractor()
 _embedder = Embedder()
 _classifier = ScentClassifier()
-
-CANONICAL_FAMILIES = [
-    "Floral",
-    "Oriental",
-    "Woody",
-    "Fresh/Citrus",
-    "Fougère",
-    "Chypre",
-    "Gourmand",
-    "Aquatic/Marine",
-    "Earthy/Mossy",
-]
 
 
 def preprocess(description: str) -> dict:

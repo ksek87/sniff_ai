@@ -1,6 +1,9 @@
 import json
+import logging
 import os
 import spacy
+
+logger = logging.getLogger(__name__)
 
 _NOTES_PATH = os.path.join(os.path.dirname(__file__), "../../data/note_profiles.json")
 _FALLBACK_NOTES_PATH = os.path.join(
@@ -35,10 +38,11 @@ class NoteExtractor:
                     notes = ast.literal_eval(val)
                     if isinstance(notes, list):
                         notes_set.update(n.strip() for n in notes if n.strip())
-                except Exception:
+                except (ValueError, SyntaxError):
                     pass
             self.all_notes = sorted(notes_set)
         except Exception:
+            logger.warning("Failed to load notes from dataset; NER will be disabled", exc_info=True)
             self.all_notes = []
 
     def _build_ruler(self):

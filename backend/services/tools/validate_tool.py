@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-_VALID_FAMILIES = {
-    "Floral", "Oriental", "Woody", "Fresh/Citrus",
-    "Fougère", "Chypre", "Gourmand", "Aquatic/Marine", "Earthy/Mossy",
-}
+from services.config import CANONICAL_FAMILIES
+
+_VALID_FAMILIES = set(CANONICAL_FAMILIES)
 
 _MAX_NOTES_PER_TIER = 6
 _MIN_NOTES_PER_TIER = 1

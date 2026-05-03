@@ -1,4 +1,4 @@
-name: Build Docker Images
+name: Build and Push Docker Image
 
 on:
   push:
@@ -24,16 +24,15 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build backend image
-      # Build context is repo root so the Dockerfile can COPY data_collection/dataset.csv
-      run: docker build -f backend/Dockerfile -t sniff-ai-backend .
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - name: Build frontend image
-      run: docker build -t sniff-ai-frontend ./frontend
-
-    - name: Push images
-      run: |
-        docker tag sniff-ai-backend ghcr.io/ksek87/sniff_ai/backend:latest
-        docker tag sniff-ai-frontend ghcr.io/ksek87/sniff_ai/frontend:latest
-        docker push ghcr.io/ksek87/sniff_ai/backend:latest
-        docker push ghcr.io/ksek87/sniff_ai/frontend:latest
+    - name: Build and push image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: backend/Dockerfile
+        push: true
+        tags: ghcr.io/ksek87/sniff_ai/backend:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max

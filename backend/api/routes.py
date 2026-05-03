@@ -42,6 +42,7 @@ def generate():
 
 
 @api_blueprint.route("/feedback", methods=["POST"])
+@limiter.limit("20 per hour")
 def feedback():
     data = request.get_json(silent=True) or {}
     required = ("session_id", "input_description", "composition", "rating")
@@ -84,5 +85,6 @@ def families():
 
 
 @api_blueprint.route("/metrics", methods=["GET"])
+@limiter.limit("60 per minute")
 def metrics():
     return jsonify(get_metrics())

@@ -263,3 +263,15 @@ def test_metrics_rating_distribution_has_all_keys(client):
     dist = resp.get_json()["rating_distribution"]
     for key in ("1", "2", "3", "4", "5"):
         assert key in dist
+
+
+# ── SPA catch-all ─────────────────────────────────────────────────────────
+
+def test_root_returns_404_when_no_frontend_build(client):
+    """Without a bundled React build, the catch-all returns 404."""
+    resp = client.get("/")
+    assert resp.status_code == 404
+
+def test_unknown_path_returns_404_when_no_frontend_build(client):
+    resp = client.get("/some/deep/route")
+    assert resp.status_code == 404

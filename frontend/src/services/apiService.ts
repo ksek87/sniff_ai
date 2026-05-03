@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { FragranceComposition, FeedbackPayload, SearchResult } from '../types/fragrance';
 
-const BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+// Empty string = same origin (production); set REACT_APP_API_URL for local dev
+const BASE_URL = process.env.REACT_APP_API_URL ?? "";
 
 export const generateFragrance = async (
   description: string,

@@ -29,10 +29,13 @@ _FRONTEND_BUILD = os.path.join(os.path.dirname(__file__), "frontend/build")
 def serve_react(path):
     if not os.path.isdir(_FRONTEND_BUILD):
         return jsonify({"error": "frontend build not found"}), 404
-    full = os.path.join(_FRONTEND_BUILD, path)
-    if path and os.path.exists(full):
-        return send_from_directory(_FRONTEND_BUILD, path)
-    return send_from_directory(_FRONTEND_BUILD, "index.html")
+    # send_from_directory uses werkzeug safe_join, which blocks path traversal
+    # and raises NotFound for missing files — no manual os.path.join needed.
+    from werkzeug.exceptions import NotFound
+    try:
+        return send_from_directory(_FRONTEND_BUILD, path or "index.html")
+    except NotFound:
+        return send_from_directory(_FRONTEND_BUILD, "index.html")
 
 
 if __name__ == "__main__":

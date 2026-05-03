@@ -22,8 +22,8 @@ export function useFragranceGeneration() {
       const composition = await generateFragrance(description, pinnedNotes);
       setState({ composition, loading: false, error: null });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Generation failed. Please try again.';
-      setState({ composition: null, loading: false, error: message });
+      console.error('Fragrance generation failed:', err);
+      setState({ composition: null, loading: false, error: 'Generation failed. Please try again.' });
     }
   };
 

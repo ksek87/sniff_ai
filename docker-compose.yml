@@ -16,21 +16,9 @@ services:
       - ./backend:/app
       - ./data_collection:/data_collection:ro
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
       interval: 30s
       retries: 3
-    networks:
-      - app-network
-
-  frontend:
-    image: ghcr.io/ksek87/sniff_ai/frontend:latest
-    build: ./frontend
-    ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://localhost:5000
-    volumes:
-      - ./frontend:/app
     networks:
       - app-network
 

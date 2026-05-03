@@ -122,7 +122,7 @@ def run(context: dict) -> dict:
         pinned_notes: list[str]
         initial_hits: list[dict]   pre-computed semantic search results
     """
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), timeout=60.0)
 
     user_message = (
         f"Create a fragrance composition for this description:\n\n"

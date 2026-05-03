@@ -50,7 +50,7 @@ def run(description: str, orchestrator_result: dict) -> dict:
     Returns a FragranceComposition dict, falling back to a minimal valid
     composition if Claude returns malformed JSON.
     """
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), timeout=60.0)
 
     user_message = (
         f"Original description: \"{description}\"\n\n"

@@ -7,7 +7,7 @@ import json
 import logging
 import os
 
-import anthropic
+from services.agents._client import _MODEL, get_client
 
 from services.tools.search_tool import search_fragrance_db
 from services.tools.note_profile_tool import get_note_profile
@@ -15,7 +15,6 @@ from services.tools.validate_tool import validate_composition
 
 logger = logging.getLogger(__name__)
 
-_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 _MAX_TOOL_ROUNDS = 5
 
 _TOOLS: list[dict] = [
@@ -122,7 +121,7 @@ def run(context: dict) -> dict:
         pinned_notes: list[str]
         initial_hits: list[dict]   pre-computed semantic search results
     """
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), timeout=60.0)
+    client = get_client()
 
     user_message = (
         f"Create a fragrance composition for this description:\n\n"

@@ -6,6 +6,8 @@ import logging
 import os
 import pickle
 
+from services.config import CANONICAL_FAMILIES
+
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -32,7 +34,6 @@ _CONCEPT_MAP: dict[str, str] = {
     "Aquatic": "Aquatic/Marine", "Marine": "Aquatic/Marine", "Ozonic": "Aquatic/Marine",
 }
 _DEFAULT_FAMILY = "Woody"
-CANONICAL_FAMILIES = sorted(set(_CONCEPT_MAP.values()))
 
 
 def _file_sha256(path: str) -> str:

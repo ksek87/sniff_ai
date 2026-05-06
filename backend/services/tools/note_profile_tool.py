@@ -2,7 +2,7 @@ from __future__ import annotations
 import json
 import os
 
-_PROFILES_PATH = os.path.join(os.path.dirname(__file__), "../../data/note_profiles.json")
+from services.config import NOTE_PROFILES_PATH as _PROFILES_PATH
 
 _profiles: dict | None = None
 

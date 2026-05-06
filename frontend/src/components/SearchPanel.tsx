@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { SearchResult } from '../types/fragrance';
 import { searchFragrances, fetchFamilies } from '../services/apiService';
+import { useFetchOnMount } from '../hooks/useFetchOnMount';
+import { toPercent } from '../utils/format';
+
+const MIN_QUERY_LEN = 2;
+const DEBOUNCE_MS = 300;
 
 const SearchPanel: React.FC = () => {
+  const families = useFetchOnMount(fetchFamilies, []);
   const [query, setQuery] = useState('');
   const [family, setFamily] = useState('');
-  const [families, setFamilies] = useState<string[]>([]);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    fetchFamilies().then(setFamilies).catch(() => {});
-  }, []);
-
-  useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current);
 
     const q = query.trim();
-    if (q.length < 2) {
+    if (q.length < MIN_QUERY_LEN) {
       setResults([]);
       setLoading(false);
       return;
@@ -30,7 +31,7 @@ const SearchPanel: React.FC = () => {
       searchFragrances(q, family || undefined)
         .then(data => { if (active) { setResults(data); setLoading(false); } })
         .catch(() => { if (active) { setResults([]); setLoading(false); } });
-    }, 300);
+    }, DEBOUNCE_MS);
 
     return () => {
       active = false;
@@ -69,12 +70,12 @@ const SearchPanel: React.FC = () => {
 
       {!loading && results.length > 0 && (
         <ul className="search-results" role="list">
-          {results.map((r, i) => (
-            <li key={`${r.brand}-${r.name}-${i}`} className="search-result">
+          {results.map(r => (
+            <li key={`${r.brand}-${r.name}`} className="search-result">
               <div className="result-header">
                 <span className="result-name">{r.name}</span>
                 <span className="result-brand">{r.brand}</span>
-                <span className="result-score">{Math.round(r.similarity_score * 100)}% match</span>
+                <span className="result-score">{toPercent(r.similarity_score)} match</span>
               </div>
               {r.description && (
                 <p className="result-description">
@@ -87,7 +88,7 @@ const SearchPanel: React.FC = () => {
         </ul>
       )}
 
-      {!loading && query.trim().length >= 2 && results.length === 0 && (
+      {!loading && query.trim().length >= MIN_QUERY_LEN && results.length === 0 && (
         <p className="search-status">No fragrances found.</p>
       )}
     </section>

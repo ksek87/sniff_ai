@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import DescriptionInput from './components/DescriptionInput';
 import FragranceCard from './components/FragranceCard';
@@ -9,7 +9,7 @@ import MetricsDashboard from './components/MetricsDashboard';
 import { useFragranceGeneration } from './hooks/useFragranceGeneration';
 
 const App: React.FC = () => {
-  const sessionId = useMemo(() => crypto.randomUUID(), []);
+  const [sessionId] = useState(() => crypto.randomUUID());
   const [pinnedNotes, setPinnedNotes] = useState<string[]>([]);
   const { composition, description, loading, error, generate } = useFragranceGeneration();
 

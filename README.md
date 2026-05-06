@@ -1,8 +1,20 @@
 # Sniff AI
 
-Sniff AI translates poetic, descriptive language ("a thunderstorm over a pine forest at dusk") into professional fragrance compositions — complete with a structured notes pyramid (top / middle / base), percentage breakdowns, a custom name, and real-world reference fragrances.
+Sniff AI translates poetic, descriptive language into professional fragrance compositions — complete with a notes pyramid (top / middle / base with percentages), a custom name, and real-world reference fragrances.
 
-Live frontend: **[ksek87.github.io/sniff_ai](https://ksek87.github.io/sniff_ai/)**
+> *"A thunderstorm over a pine forest at dusk"* → **Twilight Pine Accord** — Woody Aromatic, top: Bergamot + Petitgrain, heart: Pine Needle + Clary Sage, base: Cedarwood + Musk
+
+---
+
+## Features
+
+- **Natural language input** — describe a mood, memory, or scene; receive a structured formula
+- **Notes pyramid** — top / heart / base breakdown with percentages summing to 100%
+- **Pinned notes** — constrain the composition to specific ingredients you want included
+- **Reference fragrances** — 3 real-world matches from a database of 13,644 records
+- **Semantic search** — explore the fragrance database by description, mood, or ingredient
+- **Feedback** — 1–5 star rating with optional comment; feeds a continuous improvement loop
+- **Metrics** — community rating distribution
 
 ---
 
@@ -10,70 +22,74 @@ Live frontend: **[ksek87.github.io/sniff_ai](https://ksek87.github.io/sniff_ai/)
 
 ```
 User description
-  → NLP preprocessing (spaCy note detection, sklearn scent-family classifier)
-  → ChromaDB semantic search (sentence-transformers all-MiniLM-L6-v2)
-  → Orchestrator Agent (Claude claude-sonnet-4-6, tool use)
-  → Composition Agent (Claude claude-sonnet-4-6, structured JSON output)
-  → Fragrance Card (React frontend)
+  → NLP preprocessing   (spaCy note detection · sklearn scent-family classifier · ~50ms)
+  → ChromaDB search     (sentence-transformers all-MiniLM-L6-v2 · 13,644 records)
+  → Orchestrator Agent  (Claude claude-sonnet-4-6 · tool-use loop · up to 5 rounds)
+  → Composition Agent   (Claude claude-sonnet-4-6 · structured JSON output)
+  → Fragrance Card      (React 18 · TypeScript 5)
 ```
 
-The system uses **two Claude API calls** per generation. No local LLM is run. The NLP layer (spaCy + sklearn + sentence-transformers) runs entirely on CPU and adds ~50ms.
+Two Claude API calls per generation. The NLP layer runs on CPU, no GPU required.
+Both agents use **prompt caching** — system prompts are cached ephemerally, reducing API costs ~90% on repeat calls.
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| LLM reasoning | Anthropic Claude claude-sonnet-4-6 (API) |
-| Vector search | ChromaDB (embedded, cosine similarity) |
-| Embeddings | sentence-transformers `all-MiniLM-L6-v2` |
-| NER | spaCy `EntityRuler` (rule-based, no training) |
+|---|---|
+| LLM | Anthropic Claude claude-sonnet-4-6 |
+| Vector search | ChromaDB (embedded, cosine HNSW) |
+| Embeddings | sentence-transformers `all-MiniLM-L6-v2` (384-dim) |
+| NER | spaCy `EntityRuler` (rule-based, zero training) |
 | Scent classifier | scikit-learn TF-IDF + Logistic Regression |
-| Backend | Python 3.11, Flask, gunicorn |
-| Frontend | React 18, TypeScript 5, Axios |
-| Frontend hosting | GitHub Pages |
-| Backend hosting | Hugging Face Spaces (Docker, free tier) |
+| Backend | Python 3.11 · Flask · gunicorn |
+| Frontend | React 18 · TypeScript 5 · Axios |
+| Deployment | Single Docker container — Flask serves both API and React build |
 
 ---
 
-## Architecture
+## API
 
-### Backend API (`/api/v1/`)
+All endpoints are under `/api/v1/`.
 
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/generate` | POST | Generate fragrance from description |
-| `/feedback` | POST | Submit 1–5 star rating |
-| `/search` | GET | Semantic search over fragrance database |
-| `/notes` | GET | List all available fragrance notes |
-| `/families` | GET | List scent families |
-| `/metrics` | GET | Aggregated feedback metrics |
-| `/health` | GET | Health check |
+| Method | Path | Rate limit | Purpose |
+|---|---|---|---|
+| POST | `/generate` | 5 / hour | Generate fragrance from description + optional pinned notes |
+| POST | `/feedback` | 20 / hour | Submit 1–5 star rating with optional comment |
+| GET | `/search` | 30 / hour | Semantic search over fragrance database |
+| GET | `/notes` | — | All available fragrance note names |
+| GET | `/families` | — | 9 canonical scent families |
+| GET | `/metrics` | 60 / min | Aggregated feedback statistics |
+| GET | `/health` | — | Liveness check |
 
-### Output Schema
+### Generation request / response
 
-```json
+```jsonc
+// POST /api/v1/generate
+{ "description": "autumn rain on pine needles", "pinned_notes": ["Oud"] }
+
+// Response
 {
   "name": "Twilight Pine Accord",
-  "scent_family": "Woody Aromatic",
-  "top_notes":    [{"note": "Bergamot",    "percentage": 15}],
-  "middle_notes": [{"note": "Pine Needle", "percentage": 25}],
-  "base_notes":   [{"note": "Cedarwood",   "percentage": 35}],
+  "scent_family": "Woody",
+  "top_notes":    [{ "note": "Bergamot",    "percentage": 15 }],
+  "middle_notes": [{ "note": "Pine Needle", "percentage": 30 }],
+  "base_notes":   [{ "note": "Oud",         "percentage": 30 }, { "note": "Cedarwood", "percentage": 25 }],
   "poetic_description": "…",
-  "similar_fragrances": [{"brand": "Jo Malone", "name": "Wood Sage & Sea Salt", "similarity_score": 0.87}],
+  "similar_fragrances": [{ "brand": "Jo Malone", "name": "Wood Sage & Sea Salt", "similarity_score": 0.87 }],
   "confidence_score": 0.91
 }
 ```
 
 ---
 
-## Running Locally
+## Local Development
 
 ### Prerequisites
-- Python 3.11+
-- Node 18+
-- An `ANTHROPIC_API_KEY` (get one at [console.anthropic.com](https://console.anthropic.com))
+
+- Python 3.11+, Node 18+
+- `ANTHROPIC_API_KEY` — get one at [console.anthropic.com](https://console.anthropic.com)
 
 ### Backend
 
@@ -81,82 +97,78 @@ The system uses **two Claude API calls** per generation. No local LLM is run. Th
 cd backend
 pip install -r requirements.txt
 
-# One-time: populate ChromaDB and generate note_profiles.json (~8 min)
+# One-time: ingest 13,644 records into ChromaDB and generate note_profiles.json (~8 min)
 python scripts/ingest_dataset.py
 
-# Start the API server
 ANTHROPIC_API_KEY=sk-ant-... python app.py
-# → http://localhost:7860
+# → http://localhost:5000
 ```
 
-### Frontend
+### Frontend (dev server)
 
 ```bash
 cd frontend
-npm install --legacy-peer-deps
-REACT_APP_API_URL=http://localhost:7860 npm start
+npm ci --legacy-peer-deps
+REACT_APP_API_URL=http://localhost:5000 npm start
 # → http://localhost:3000
 ```
 
-### Docker Compose (recommended for local dev)
+### Docker Compose (recommended)
 
 ```bash
-cp .env.example .env          # add your ANTHROPIC_API_KEY
+cp .env.example .env          # fill in ANTHROPIC_API_KEY
 docker compose up --build
+# Backend: localhost:5000 (auto-ingests ChromaDB on first start)
 ```
-
-Backend at `localhost:5000`, frontend at `localhost:3000`.  
-The backend runs `start.sh` which auto-populates ChromaDB on first start (~8 min), then starts gunicorn.
 
 ---
 
-## Deployment
+## Deployment (Hugging Face Spaces)
 
-### Backend — Hugging Face Spaces
+The single Docker image serves both the Flask API and the compiled React app.
 
-1. Create a new Space (Docker SDK, public) at [huggingface.co/spaces](https://huggingface.co/spaces)
-2. Set Space secrets: `ANTHROPIC_API_KEY`, `CHROMA_PERSIST_DIR=/data/chroma_db`
-3. Deploy the GHCR image: `ghcr.io/ksek87/sniff_ai/backend:latest`
-4. First startup ingests the dataset (~8 min); ChromaDB persists at `/data/chroma_db`
-
-### Frontend — GitHub Pages
-
-The `deploy.yml` workflow builds and deploys automatically on every push to `main`.
-
-Set the GitHub Actions secret `BACKEND_URL` to your HF Space URL (e.g. `https://ksek87-sniff-ai.hf.space`) so the frontend build wires up the correct API endpoint.
-
+```bash
+# Build image from repo root (multi-stage: Node 18 → Python 3.11)
+docker build -f backend/Dockerfile -t sniff-ai .
 ```
-Repo Settings → Secrets and variables → Actions → New repository secret
-Name: BACKEND_URL
-Value: https://your-space-name.hf.space
+
+1. Create a [Hugging Face Space](https://huggingface.co/spaces) (Docker SDK, public)
+2. Add secrets: `ANTHROPIC_API_KEY`, `CHROMA_PERSIST_DIR=/data/chroma_db`
+3. Push `ghcr.io/ksek87/sniff_ai/backend:latest` (built by `docker.yml` on every push to `main`)
+4. Point the Space at that image — first boot auto-ingests ChromaDB (~8 min), then serves on port 7860
+
+---
+
+## Testing
+
+```bash
+# Backend — 95 tests, no API key required (all external calls mocked)
+python -m pytest backend/tests/ -q
+
+# Frontend type check
+cd frontend && npx tsc --noEmit
 ```
 
 ---
 
 ## Data
 
-The fragrance database (`data_collection/dataset.csv`) contains **13,644 records** scraped from public fragrance catalogues, with fields: Brand, Name, Description, Notes (list), Concepts (list).
+`data_collection/dataset.csv` — 13,644 fragrance records (Brand, Name, Description, Notes, Concepts).
 
-One-time ingestion via `scripts/ingest_dataset.py`:
-- Encodes all records with `all-MiniLM-L6-v2` (384-dim vectors)
-- Stores in ChromaDB with cosine HNSW index
-- Generates `backend/data/note_profiles.json` (volatility + co-occurrence pairs for 1,000+ notes)
-
----
-
-## Project Phases
-
-- [x] **Phase 1** — Data collection & curation (13,644 fragrance records)
-- [x] **Phase 2** — Agentic pipeline (Claude API + ChromaDB + NLP layer)
-- [x] **Phase 3** — React frontend (Fragrance Card, Notes Pyramid, feedback)
-- [ ] **Phase 4** — Personalization (pinned notes, scent family filter)
-- [ ] **Phase 5** — Search panel + metrics dashboard
-- [ ] **Phase 6** — Feedback loop (re-weight classifier on ratings)
+`backend/scripts/ingest_dataset.py` (one-time):
+- Encodes all records with `all-MiniLM-L6-v2` into ChromaDB
+- Generates `backend/data/note_profiles.json` (volatility class + co-occurrence pairs for 1,000+ notes)
 
 ---
 
-## Contributing
+## Project Status
 
-PRs welcome. For larger changes, open an issue first to discuss the approach.
-
-Product management documentation (roadmaps, feature specs): [`/product-management`](product-management/)
+- [x] Data collection — 13,644 fragrance records
+- [x] Agentic pipeline — Claude API · ChromaDB · NLP layer
+- [x] Core UI — Fragrance Card · Notes Pyramid
+- [x] Personalization — pinned notes (NoteSelector)
+- [x] Feedback — star rating + comment (FeedbackWidget)
+- [x] Search — semantic fragrance database search (SearchPanel)
+- [x] Metrics — rating distribution dashboard (MetricsDashboard)
+- [x] Deployment — single-container Docker · Hugging Face Spaces
+- [ ] Feedback loop — re-weight scent classifier on accumulated ratings

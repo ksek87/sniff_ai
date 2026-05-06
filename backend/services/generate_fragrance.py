@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from services.nlp import preprocess
 from services.tools.search_tool import search_fragrance_db
 from services.agents import orchestrator, composer

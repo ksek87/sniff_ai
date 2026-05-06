@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { FragranceComposition, FeedbackPayload, SearchResult } from '../types/fragrance';
+import { FragranceComposition, FeedbackPayload, SearchResult, Metrics } from '../types/fragrance';
 
 // Empty string = same origin (production); set REACT_APP_API_URL for local dev
 const BASE_URL = process.env.REACT_APP_API_URL ?? "";
@@ -36,5 +36,10 @@ export const fetchNotes = async (): Promise<string[]> => {
 
 export const fetchFamilies = async (): Promise<string[]> => {
   const { data } = await axios.get<string[]>(`${BASE_URL}/api/v1/families`);
+  return data;
+};
+
+export const fetchMetrics = async (): Promise<Metrics> => {
+  const { data } = await axios.get<Metrics>(`${BASE_URL}/api/v1/metrics`);
   return data;
 };

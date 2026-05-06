@@ -36,3 +36,9 @@ export interface SearchResult {
   description: string;
   similarity_score: number;
 }
+
+export interface Metrics {
+  total_feedback: number;
+  average_rating: number | null;
+  rating_distribution: Record<string, number>;
+}

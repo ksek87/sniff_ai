@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 interface Props {
   onGenerate: (description: string) => void;
   loading: boolean;
+  additionalContent?: React.ReactNode;
 }
 
-const DescriptionInput: React.FC<Props> = ({ onGenerate, loading }) => {
+const DescriptionInput: React.FC<Props> = ({ onGenerate, loading, additionalContent }) => {
   const [description, setDescription] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,6 +26,7 @@ const DescriptionInput: React.FC<Props> = ({ onGenerate, loading }) => {
         rows={4}
         disabled={loading}
       />
+      {additionalContent}
       <button
         type="submit"
         className="generate-btn"

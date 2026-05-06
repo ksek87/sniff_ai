@@ -122,7 +122,7 @@ def run(context: dict) -> dict:
         pinned_notes: list[str]
         initial_hits: list[dict]   pre-computed semantic search results
     """
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), timeout=60.0)
 
     user_message = (
         f"Create a fragrance composition for this description:\n\n"
@@ -150,7 +150,7 @@ def run(context: dict) -> dict:
         response = client.messages.create(
             model=_MODEL,
             max_tokens=2048,
-            system=_SYSTEM_PROMPT,
+            system=[{"type": "text", "text": _SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=_TOOLS,
             messages=messages,
         )

@@ -39,4 +39,6 @@ def serve_react(path):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 7860)))
+    # Dev-only path — production uses gunicorn via start.sh.
+    # Bind to loopback only; never expose the dev server to all interfaces.
+    app.run(host="127.0.0.1", port=int(os.getenv("PORT", 5000)))

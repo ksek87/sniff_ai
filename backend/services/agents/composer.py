@@ -60,7 +60,7 @@ def run(description: str, orchestrator_result: dict) -> dict:
     response = client.messages.create(
         model=_MODEL,
         max_tokens=1500,
-        system=_SYSTEM_PROMPT,
+        system=[{"type": "text", "text": _SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
         messages=[{"role": "user", "content": user_message}],
     )
 

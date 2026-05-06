@@ -150,7 +150,7 @@ def run(context: dict) -> dict:
         response = client.messages.create(
             model=_MODEL,
             max_tokens=2048,
-            system=_SYSTEM_PROMPT,
+            system=[{"type": "text", "text": _SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=_TOOLS,
             messages=messages,
         )

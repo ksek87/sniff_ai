@@ -77,13 +77,13 @@ def test_percentages_not_summing_to_100():
     )
     result = validate_composition(comp)
     assert result["valid"] is False
-    assert any("70%" in e for e in result["errors"])
+    assert any("70%" in e["message"] for e in result["errors"])
 
 
 def test_unknown_scent_family():
     result = validate_composition(_comp(scent_family="Imaginary"))
     assert result["valid"] is False
-    assert any("Imaginary" in e for e in result["errors"])
+    assert any("Imaginary" in e["message"] for e in result["errors"])
 
 
 def test_empty_scent_family_is_valid():
@@ -109,21 +109,21 @@ def test_tier_with_zero_notes_top():
     comp = _comp(top_notes=[])
     result = validate_composition(comp)
     assert result["valid"] is False
-    assert any("top" in e for e in result["errors"])
+    assert any("top" in e["message"] for e in result["errors"])
 
 
 def test_tier_with_zero_notes_middle():
     comp = _comp(middle_notes=[])
     result = validate_composition(comp)
     assert result["valid"] is False
-    assert any("middle" in e for e in result["errors"])
+    assert any("middle" in e["message"] for e in result["errors"])
 
 
 def test_tier_with_zero_notes_base():
     comp = _comp(base_notes=[])
     result = validate_composition(comp)
     assert result["valid"] is False
-    assert any("base" in e for e in result["errors"])
+    assert any("base" in e["message"] for e in result["errors"])
 
 
 def test_tier_with_seven_notes():
@@ -131,7 +131,7 @@ def test_tier_with_seven_notes():
     comp = _comp(top_notes=seven_notes, middle_notes=[], base_notes=[])
     result = validate_composition(comp)
     assert result["valid"] is False
-    assert any("7 notes" in e for e in result["errors"])
+    assert any("7 notes" in e["message"] for e in result["errors"])
 
 
 def test_multiple_errors_reported():
@@ -145,3 +145,32 @@ def test_multiple_errors_reported():
     result = validate_composition(comp)
     assert result["valid"] is False
     assert len(result["errors"]) >= 2
+
+
+# ── Error shape ───────────────────────────────────────────────────────────────
+
+def test_error_has_message_and_severity_fields():
+    result = validate_composition(_comp(scent_family="Imaginary"))
+    for err in result["errors"]:
+        assert "message" in err
+        assert "severity" in err
+        assert err["severity"] in ("critical", "warning")
+
+
+def test_percentage_error_is_critical():
+    comp = _comp(
+        top_notes=[{"note": "Bergamot", "percentage": 10}],
+        middle_notes=[{"note": "Rose", "percentage": 40}],
+        base_notes=[{"note": "Cedarwood", "percentage": 20}],
+    )
+    result = validate_composition(comp)
+    pct_errors = [e for e in result["errors"] if "70%" in e["message"]]
+    assert pct_errors and pct_errors[0]["severity"] == "critical"
+
+
+def test_too_many_notes_tier_is_warning():
+    seven_notes = [{"note": f"Note{i}", "percentage": 10} for i in range(7)]
+    comp = _comp(top_notes=seven_notes, middle_notes=[{"note": "Rose", "percentage": 15}], base_notes=[{"note": "Musk", "percentage": 15}])
+    result = validate_composition(comp)
+    tier_errors = [e for e in result["errors"] if "7 notes" in e["message"]]
+    assert tier_errors and tier_errors[0]["severity"] == "warning"

@@ -71,6 +71,21 @@ def test_dispatch_get_note_profile():
         assert "Oud" in result
 
 
+def test_dispatch_get_note_pairings():
+    with patch("services.agents.orchestrator.get_note_pairings") as mock_fn:
+        mock_fn.return_value = ["Cedar", "Musk"]
+        result = _dispatch_tool("get_note_pairings", {"notes": ["Bergamot", "Rose"], "limit": 5})
+        mock_fn.assert_called_once_with(["Bergamot", "Rose"], limit=5)
+        assert "Cedar" in result
+
+
+def test_dispatch_get_note_pairings_default_limit():
+    with patch("services.agents.orchestrator.get_note_pairings") as mock_fn:
+        mock_fn.return_value = []
+        _dispatch_tool("get_note_pairings", {"notes": ["Bergamot"]})
+        mock_fn.assert_called_once_with(["Bergamot"], limit=10)
+
+
 def test_dispatch_validate_composition():
     comp = {"name": "Test", "scent_family": "Woody"}
     with patch("services.agents.orchestrator.validate_composition") as mock_fn:

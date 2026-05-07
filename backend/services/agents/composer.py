@@ -8,6 +8,14 @@ import logging
 import os
 import re
 
+try:
+    from langfuse.decorators import observe
+except ImportError:
+    def observe(name=None):
+        def decorator(func):
+            return func
+        return decorator
+
 from services.agents._client import _MODEL, get_client
 
 logger = logging.getLogger(__name__)
@@ -41,6 +49,7 @@ Rules:
 - The poetic_description should mirror the tone and register of the user's input"""
 
 
+@observe(name="composer")
 def run(description: str, orchestrator_result: dict) -> dict:
     """
     Run the Composition Agent.
@@ -57,7 +66,7 @@ def run(description: str, orchestrator_result: dict) -> dict:
 
     response = client.messages.create(
         model=_MODEL,
-        max_tokens=1500,
+        max_tokens=2048,
         system=[{"type": "text", "text": _SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
         messages=[{"role": "user", "content": user_message}],
     )

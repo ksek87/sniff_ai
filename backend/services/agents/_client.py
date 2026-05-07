@@ -1,6 +1,10 @@
 from __future__ import annotations
 import os
-import anthropic
+
+try:
+    from langfuse.anthropic import anthropic
+except ImportError:
+    import anthropic
 
 _MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 _TIMEOUT = 60.0

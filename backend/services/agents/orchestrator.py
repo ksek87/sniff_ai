@@ -7,10 +7,18 @@ import json
 import logging
 import os
 
+try:
+    from langfuse.decorators import observe
+except ImportError:
+    def observe(name=None):
+        def decorator(func):
+            return func
+        return decorator
+
 from services.agents._client import _MODEL, get_client
 
 from services.tools.search_tool import search_fragrance_db
-from services.tools.note_profile_tool import get_note_profile
+from services.tools.note_profile_tool import get_note_profile, get_note_pairings
 from services.tools.validate_tool import validate_composition
 
 logger = logging.getLogger(__name__)
@@ -23,7 +31,8 @@ _TOOLS: list[dict] = [
         "description": (
             "Search the fragrance database using semantic similarity. "
             "Returns real-world fragrances most similar to the query description. "
-            "Use this to ground the composition in real fragrance knowledge."
+            "Use this to ground the composition in real fragrance knowledge. "
+            "Optionally filter by scent family to reduce cross-family noise."
         ),
         "input_schema": {
             "type": "object",
@@ -34,6 +43,15 @@ _TOOLS: list[dict] = [
                     "description": "Number of results to return (1–15)",
                     "default": 8,
                 },
+                "family": {
+                    "type": "string",
+                    "description": (
+                        "Optional scent family filter. Only results whose concepts "
+                        "include this family are returned. One of: Floral, Oriental, "
+                        "Woody, Fresh/Citrus, Fougère, Chypre, Gourmand, "
+                        "Aquatic/Marine, Earthy/Mossy."
+                    ),
+                },
             },
             "required": ["query"],
         },
@@ -42,7 +60,9 @@ _TOOLS: list[dict] = [
         "name": "get_note_profile",
         "description": (
             "Get the volatility class (top/middle/base), scent family, and "
-            "best pairing notes for one or more fragrance ingredients."
+            "best pairing notes for one or more fragrance ingredients. "
+            "The 'found' field in each result indicates whether the note exists "
+            "in the database (false means an unknown ingredient — avoid it)."
         ),
         "input_schema": {
             "type": "object",
@@ -57,10 +77,35 @@ _TOOLS: list[dict] = [
         },
     },
     {
+        "name": "get_note_pairings",
+        "description": (
+            "Given a list of notes already selected for the composition, return "
+            "notes that pair well with ALL of them (intersection of pairing sets). "
+            "Useful for filling remaining tiers with data-grounded suggestions."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "notes": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Notes already committed to the composition",
+                },
+                "limit": {
+                    "type": "integer",
+                    "description": "Maximum number of suggestions to return",
+                    "default": 10,
+                },
+            },
+            "required": ["notes"],
+        },
+    },
+    {
         "name": "validate_composition",
         "description": (
             "Validate a draft fragrance composition. Checks that percentages sum "
-            "to 100%, tiers are balanced, and the scent family is recognised."
+            "to 100%, tiers are balanced, and the scent family is recognised. "
+            "Each error has a 'severity' of 'critical' (must fix) or 'warning' (acceptable)."
         ),
         "input_schema": {
             "type": "object",
@@ -104,11 +149,14 @@ def _dispatch_tool(tool_name: str, tool_input: dict):
         return search_fragrance_db(**tool_input)
     elif tool_name == "get_note_profile":
         return get_note_profile(tool_input["notes"])
+    elif tool_name == "get_note_pairings":
+        return get_note_pairings(tool_input["notes"], limit=tool_input.get("limit", 10))
     elif tool_name == "validate_composition":
         return validate_composition(tool_input["composition"])
     return {"error": f"Unknown tool: {tool_name}"}
 
 
+@observe(name="orchestrator")
 def run(context: dict) -> dict:
     """
     Run the Orchestrator Agent.
@@ -152,6 +200,7 @@ def run(context: dict) -> dict:
             system=[{"type": "text", "text": _SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=_TOOLS,
             messages=messages,
+            extra_headers={"anthropic-beta": "token-efficient-tool-use-2025-02-19"},
         )
 
         messages.append({"role": "assistant", "content": response.content})

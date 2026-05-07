@@ -6,6 +6,12 @@ from services.tools.search_tool import search_fragrance_db
 from services.nlp import get_all_notes, get_all_families
 from limiter import limiter
 
+try:
+    from langfuse.decorators import langfuse_context
+    _LANGFUSE = True
+except ImportError:
+    _LANGFUSE = False
+
 api_blueprint = Blueprint("api", __name__)
 
 _MAX_DESCRIPTION = 500
@@ -36,6 +42,13 @@ def generate():
     if len(raw_notes) > _MAX_PINNED_NOTES:
         return jsonify({"error": f"pinned_notes may contain at most {_MAX_PINNED_NOTES} items"}), 400
     pinned_notes = [_sanitize(str(n))[:_MAX_NOTE_LEN] for n in raw_notes if str(n).strip()]
+
+    if _LANGFUSE:
+        langfuse_context.update_current_trace(
+            user_id=data.get("session_id"),
+            input=description,
+            tags=["generate"],
+        )
 
     result = generate_fragrance_from_description(description, pinned_notes)
     return jsonify(result)

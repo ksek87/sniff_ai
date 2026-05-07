@@ -1,5 +1,5 @@
 """
-Unit tests for get_note_profile.
+Unit tests for get_note_profile and get_note_pairings.
 """
 import json
 import pytest
@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 
 _SAMPLE_PROFILES = {
-    "Bergamot": {"volatility": "top", "family": "Fresh/Citrus", "pairs_well_with": ["Lemon"]},
-    "Rose": {"volatility": "middle", "family": "Floral", "pairs_well_with": ["Jasmine"]},
+    "Bergamot": {"volatility": "top", "family": "Fresh/Citrus", "pairs_well_with": ["Lemon", "Cedar"]},
+    "Rose": {"volatility": "middle", "family": "Floral", "pairs_well_with": ["Jasmine", "Cedar"]},
     "Musk": {"volatility": "base", "family": "Oriental", "pairs_well_with": ["Amber"]},
 }
 
@@ -59,3 +59,56 @@ def test_empty_profiles_falls_back_gracefully():
 def test_empty_note_list(patched_profiles):
     from services.tools.note_profile_tool import get_note_profile
     assert get_note_profile([]) == {}
+
+
+# ── found field ───────────────────────────────────────────────────────────────
+
+def test_known_note_has_found_true(patched_profiles):
+    from services.tools.note_profile_tool import get_note_profile
+    result = get_note_profile(["Bergamot"])
+    assert result["Bergamot"]["found"] is True
+
+
+def test_unknown_note_has_found_false(patched_profiles):
+    from services.tools.note_profile_tool import get_note_profile
+    result = get_note_profile(["FakeNote123"])
+    assert result["FakeNote123"]["found"] is False
+
+
+# ── get_note_pairings ─────────────────────────────────────────────────────────
+
+def test_pairings_returns_intersection(patched_profiles):
+    from services.tools.note_profile_tool import get_note_pairings
+    # Bergamot pairs with ["Lemon", "Cedar"], Rose pairs with ["Jasmine", "Cedar"]
+    # Intersection = ["Cedar"]
+    result = get_note_pairings(["Bergamot", "Rose"])
+    assert result == ["Cedar"]
+
+
+def test_pairings_excludes_input_notes(patched_profiles):
+    from services.tools.note_profile_tool import get_note_pairings
+    result = get_note_pairings(["Bergamot"])
+    assert "Bergamot" not in result
+
+
+def test_pairings_single_note_returns_its_pairs(patched_profiles):
+    from services.tools.note_profile_tool import get_note_pairings
+    result = get_note_pairings(["Musk"])
+    assert "Amber" in result
+
+
+def test_pairings_unknown_note_returns_empty(patched_profiles):
+    from services.tools.note_profile_tool import get_note_pairings
+    result = get_note_pairings(["NonExistent"])
+    assert result == []
+
+
+def test_pairings_limit_is_respected(patched_profiles):
+    from services.tools.note_profile_tool import get_note_pairings
+    result = get_note_pairings(["Bergamot"], limit=1)
+    assert len(result) <= 1
+
+
+def test_pairings_empty_input_returns_empty(patched_profiles):
+    from services.tools.note_profile_tool import get_note_pairings
+    assert get_note_pairings([]) == []

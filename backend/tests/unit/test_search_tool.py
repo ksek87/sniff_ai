@@ -89,3 +89,42 @@ def test_top_k_limits_results():
         search_fragrance_db("query", top_k=5)
     call_kwargs = coll.query.call_args.kwargs
     assert call_kwargs["n_results"] == 5
+
+
+# ── family filter ───────────────────────────────────────────────────────────
+
+def test_family_filter_excludes_non_matching():
+    """Results whose concepts_list does not contain the family are excluded."""
+    metas = [
+        {"brand": "A", "name": "Floral Frag", "description": "", "notes_list": "", "concepts_list": "Floral, Fresh"},
+        {"brand": "B", "name": "Woody Frag", "description": "", "notes_list": "", "concepts_list": "Woody"},
+    ]
+    dists = [0.1, 0.2]
+    with patch("services.tools.search_tool._get_collection") as mock_gc:
+        mock_gc.return_value = _make_collection(2, metas, dists)
+        from services.tools.search_tool import search_fragrance_db
+        result = search_fragrance_db("rose", family="Floral")
+    assert len(result) == 1
+    assert result[0]["name"] == "Floral Frag"
+
+
+def test_family_filter_is_case_insensitive():
+    """Family filter matches regardless of case."""
+    meta = {"brand": "A", "name": "N", "description": "", "notes_list": "", "concepts_list": "Woody, Fresh"}
+    with patch("services.tools.search_tool._get_collection") as mock_gc:
+        mock_gc.return_value = _make_collection(1, [meta], [0.1])
+        from services.tools.search_tool import search_fragrance_db
+        result = search_fragrance_db("cedar", family="woody")
+    assert len(result) == 1
+
+
+def test_no_family_filter_returns_all():
+    """Without family filter, all results are returned."""
+    metas = [{"brand": f"B{i}", "name": f"N{i}", "description": "", "notes_list": "", "concepts_list": f"Family{i}"}
+             for i in range(3)]
+    dists = [0.1 * i for i in range(3)]
+    with patch("services.tools.search_tool._get_collection") as mock_gc:
+        mock_gc.return_value = _make_collection(3, metas, dists)
+        from services.tools.search_tool import search_fragrance_db
+        result = search_fragrance_db("query")
+    assert len(result) == 3

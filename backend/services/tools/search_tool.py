@@ -23,16 +23,19 @@ def _get_collection():
     return _collection
 
 
-def search_fragrance_db(query: str, top_k: int = 10) -> list[dict]:
+def search_fragrance_db(query: str, top_k: int = 10, family: str | None = None) -> list[dict]:
     collection = _get_collection()
     if collection.count() == 0:
         return []
 
     query_vector = _embedder.encode(query)
 
+    # Fetch extra results when filtering so we still return up to top_k after the filter
+    fetch_k = min(top_k * 3 if family else top_k, collection.count())
+
     results = collection.query(
         query_embeddings=[query_vector],
-        n_results=min(top_k, collection.count()),
+        n_results=fetch_k,
         include=["metadatas", "distances"],
     )
 
@@ -40,6 +43,8 @@ def search_fragrance_db(query: str, top_k: int = 10) -> list[dict]:
     for meta, dist in zip(
         results["metadatas"][0], results["distances"][0]
     ):
+        if family and family.lower() not in (meta.get("concepts_list", "") or "").lower():
+            continue
         output.append(
             {
                 "brand": meta.get("brand", ""),
@@ -50,4 +55,6 @@ def search_fragrance_db(query: str, top_k: int = 10) -> list[dict]:
                 "similarity_score": round(1 - dist, 4),
             }
         )
+        if len(output) >= top_k:
+            break
     return output

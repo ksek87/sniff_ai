@@ -1,11 +1,12 @@
+import ast
 import json
 import logging
 import os
 import spacy
 
-logger = logging.getLogger(__name__)
+from services.config import NOTE_PROFILES_PATH as _NOTES_PATH
 
-_NOTES_PATH = os.path.join(os.path.dirname(__file__), "../../data/note_profiles.json")
+logger = logging.getLogger(__name__)
 _FALLBACK_NOTES_PATH = os.path.join(
     os.path.dirname(__file__), "../../../data_collection/dataset.csv"
 )
@@ -28,7 +29,6 @@ class NoteExtractor:
 
         # Fall back to extracting unique notes from dataset.csv at runtime
         try:
-            import ast
             import pandas as pd
 
             df = pd.read_csv(_FALLBACK_NOTES_PATH)

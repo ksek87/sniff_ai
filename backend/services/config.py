@@ -1,4 +1,5 @@
 from __future__ import annotations
+import os
 
 CANONICAL_FAMILIES: list[str] = [
     "Floral",
@@ -11,3 +12,5 @@ CANONICAL_FAMILIES: list[str] = [
     "Aquatic/Marine",
     "Earthy/Mossy",
 ]
+
+NOTE_PROFILES_PATH: str = os.path.join(os.path.dirname(__file__), "../data/note_profiles.json")

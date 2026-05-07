@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { fetchNotes } from '../services/apiService';
+import { useFetchOnMount } from '../hooks/useFetchOnMount';
 
 interface Props {
   selected: string[];
@@ -10,12 +11,8 @@ const MAX_SHOWN = 30;
 const MAX_SELECTED = 10;
 
 const NoteSelector: React.FC<Props> = ({ selected, onToggle }) => {
-  const [allNotes, setAllNotes] = useState<string[]>([]);
+  const allNotes = useFetchOnMount(fetchNotes, []);
   const [filter, setFilter] = useState('');
-
-  useEffect(() => {
-    fetchNotes().then(setAllNotes).catch(() => {});
-  }, []);
 
   if (allNotes.length === 0) return null;
 

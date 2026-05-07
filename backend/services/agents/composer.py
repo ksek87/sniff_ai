@@ -8,11 +8,9 @@ import logging
 import os
 import re
 
-import anthropic
+from services.agents._client import _MODEL, get_client
 
 logger = logging.getLogger(__name__)
-
-_MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
 
 _SYSTEM_PROMPT = """You are a master perfumer who writes the final fragrance formula and description.
 
@@ -50,7 +48,7 @@ def run(description: str, orchestrator_result: dict) -> dict:
     Returns a FragranceComposition dict, falling back to a minimal valid
     composition if Claude returns malformed JSON.
     """
-    client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"), timeout=60.0)
+    client = get_client()
 
     user_message = (
         f"Original description: \"{description}\"\n\n"

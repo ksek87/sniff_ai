@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Metrics } from '../types/fragrance';
 import { fetchMetrics } from '../services/apiService';
+import { useFetchOnMount } from '../hooks/useFetchOnMount';
 
 const MetricsDashboard: React.FC = () => {
-  const [metrics, setMetrics] = useState<Metrics | null>(null);
-
-  useEffect(() => {
-    fetchMetrics().then(setMetrics).catch(() => {});
-  }, []);
+  const metrics = useFetchOnMount<Metrics | null>(fetchMetrics, null);
 
   if (!metrics || metrics.total_feedback === 0) return null;
 

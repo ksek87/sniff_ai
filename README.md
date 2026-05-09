@@ -1,5 +1,7 @@
 # Sniff AI
 
+**[Try it live →](https://ksek87.github.io/sniff_ai/)**
+
 Sniff AI translates poetic, descriptive language into professional fragrance compositions — complete with a notes pyramid (top / middle / base with percentages), a custom name, and real-world reference fragrances.
 
 > *"A thunderstorm over a pine forest at dusk"* → **Twilight Pine Accord** — Woody Aromatic, top: Bergamot + Petitgrain, heart: Pine Needle + Clary Sage, base: Cedarwood + Musk

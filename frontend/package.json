@@ -19,9 +19,6 @@
     "deploy": "gh-pages -d build"
   },
   "homepage": "https://ksek87.github.io/sniff_ai",
-  "overrides": {
-    "ajv": "^6.12.6"
-  },
   "browserslist": {
     "production": [">0.2%", "not dead", "not op_mini all"],
     "development": ["last 1 chrome version", "last 1 firefox version", "last 1 safari version"]

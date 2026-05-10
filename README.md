@@ -2,125 +2,149 @@
 
 **[Try it live →](https://ksek87.github.io/sniff_ai/)**
 
-*From memory to molecule.* Sniff AI translates poetic, descriptive language into professional fragrance compositions — a notes pyramid (top / heart / base with percentages), a custom name, and real-world reference matches.
+---
+
+## The idea
+
+Fragrance is one of the most emotionally vivid senses, but describing a scent you want is almost impossible without a perfumer's vocabulary. People reach for metaphors — *"a walk through a pine forest after rain"*, *"warm, like old books and amber"*, *"the sea at five in the morning"* — but those descriptions live in a completely different language from the ingredient lists, volatility classes, and accord structures that actually make a perfume.
+
+Sniff AI bridges that gap. You describe a feeling or a memory in plain language. It produces a professional fragrance composition — a notes pyramid with percentages, a name, a poetic description written back in your register, and real-world references from a database of 13,644 fragrances. No perfumery knowledge required.
 
 > *"A thunderstorm over a pine forest at dusk"* → **Twilight Pine Accord** — Woody Aromatic · Bergamot + Petitgrain · Pine Needle + Clary Sage · Cedarwood + Musk
 
----
-
-## Architecture
-
-```
-POST /generate
-        │
-        ├─① NLP Preprocessing ──────────────────── run in parallel ──┐
-        │    spaCy EntityRuler  → detected notes                      │
-        │    TF-IDF + LogReg    → scent family + confidence           │
-        │                                                             │
-        └─② Vector Search ──────────────────────────────────────────┘
-             all-MiniLM-L6-v2 → ChromaDB (13,644 records, cosine HNSW)
-        │
-        ▼
-③ Orchestrator Agent  (Claude claude-sonnet-4-6, tool-use)
-   ┌─ Round 1: get_note_profile(all_candidates)
-   │           ↳ volatility · family · pairings · shared_pairings
-   │           [parallel if multiple tool calls in same round]
-   └─ Round 2: end_turn → recommended_notes JSON
-        │
-        ▼
-④ Composer Agent  (Claude claude-sonnet-4-6, single call)
-   trimmed orchestrator context → FragranceComposition JSON
-        │
-        ▼
-   React 18 / TypeScript FragranceCard
-```
-
-Two LLM calls per generation (orchestrator + composer). NLP and vector search run concurrently before either LLM call. Multiple tool calls within the same orchestrator round are dispatched in parallel via `ThreadPoolExecutor`.
+The core problem is translation: from subjective, sensory language to structured, technical knowledge. That's what makes it an interesting AI engineering problem — it's not enough to ask an LLM to "make a perfume". The model needs to be grounded in real fragrance data, guided by domain signals (what scent family does this description suggest? which notes did the user explicitly name?), and constrained by perfumery rules (volatility balance, note compatibility, percentages that sum to 100). Getting that right without hallucinated notes or unconstrained LLM output is the design challenge the architecture is built around.
 
 ---
 
-## Agentic Design
-
-### Why two agents?
-
-The pipeline splits into two deliberately separate concerns:
-
-**Orchestrator** — a *grounding* agent. It has no idea what the final formula looks like. Its only job is to retrieve relevant fragrance knowledge and recommend which notes belong in each tier. It uses tools backed by real data so Claude can't hallucinate notes.
-
-**Composer** — a *formulation* agent. It receives the orchestrator's trimmed output (recommended notes + 3 reference fragrances + short reasoning) and produces the final structured JSON: name, percentages, poetic description, confidence score. It never touches the database directly.
-
-This separation keeps each prompt small, focused, and independently improvable.
-
-### Orchestrator tools
-
-| Tool | Purpose | Design note |
-|---|---|---|
-| `search_fragrance_db` | Semantic search over 13,644 records (optional family filter) | Only called if pre-loaded references are insufficient |
-| `get_note_profile` | Volatility, family, pairings for a list of notes in one call | Returns `shared_pairings` (intersection of all notes' pairing sets) when ≥2 notes requested — eliminates a separate round-trip |
-
-`validate_composition` and `get_note_pairings` were deliberately removed from the orchestrator:
-- `validate_composition` belongs to the composer step. Giving it to the orchestrator caused Claude to waste a round building a draft formula purely to validate it.
-- `get_note_pairings` is now merged into `get_note_profile` via `shared_pairings`, collapsing the typical 3-round flow to 2.
-
-### Token optimisation
-
-Three cache breakpoints per request (Anthropic prompt caching, 90% discount on hits):
+## Full Architecture
 
 ```
-[system prompt]       ← cache breakpoint 1  (cross-request)
-[tools block]         ← cache breakpoint 2  (cross-request, within TTL)
-[user message]        ← cache breakpoint 3  (within-request: rounds 2+ pay only for new content)
-[accumulated rounds]  ← billed at full price (grows ~300 tokens per round)
+┌─────────────────────────────────────────────────────────────────┐
+│  DATA PIPELINE  (one-time, ~8 min)                              │
+│                                                                 │
+│  dataset.csv (13,644 records)                                   │
+│    │                                                            │
+│    ├─ all-MiniLM-L6-v2 → encode descriptions                   │
+│    │    └─ ChromaDB (cosine HNSW, 13,644 vectors)               │
+│    │                                                            │
+│    ├─ TF-IDF + LogReg ← train on descriptions + family labels   │
+│    │    └─ scent_classifier.pkl                                 │
+│    │                                                            │
+│    └─ co-occurrence mining ← merge with hand-crafted corpus     │
+│         └─ note_profiles.json (174 curated + ~1k dataset notes) │
+└─────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────┐
+│  INFERENCE PIPELINE  (per request)                              │
+│                                                                 │
+│  User description                                               │
+│    │                                                            │
+│    ├─① spaCy EntityRuler ────────────── run in parallel ───┐   │
+│    │    1,000+ note patterns from note_profiles.json         │   │
+│    │    → detected_notes: ["Cedar", "Oud"]                  │   │
+│    │                                                         │   │
+│    ├─② sklearn TF-IDF + LogReg ──────────────────────────┐  │   │
+│    │    trained on 13,644 fragrance descriptions          │  │   │
+│    │    → predicted_family: "Woody"  confidence: 0.84    │  │   │
+│    │                                                      │  │   │
+│    └─③ all-MiniLM-L6-v2 → ChromaDB ────────────────────┘  │   │
+│         cosine HNSW retrieval, top-5 similar fragrances    ┘   │
+│    │                                                            │
+│    ▼  context = {description, detected_notes,                  │
+│                  predicted_family, family_confidence,          │
+│                  initial_hits, pinned_notes}                   │
+│    │                                                            │
+│    ├─④ Orchestrator Agent  (Claude claude-sonnet-4-6)          │
+│    │    Tools:                                                  │
+│    │      get_note_profile(notes)                              │
+│    │        → volatility · family · pairs · shared_pairings    │
+│    │      search_fragrance_db(query, family?)                  │
+│    │        → semantic search (only if initial_hits lack scope)│
+│    │    Typical flow: 2 rounds                                 │
+│    │      Round 1: profile all candidate notes in one call     │
+│    │      Round 2: end_turn → recommended_notes JSON           │
+│    │    Parallel: multiple tool calls in one round run         │
+│    │              concurrently via ThreadPoolExecutor          │
+│    │                                                            │
+│    └─⑤ Composer Agent  (Claude claude-sonnet-4-6)              │
+│         Single call: description + trimmed orchestrator output  │
+│         → FragranceComposition JSON                            │
+│              name · scent_family · top/middle/base notes       │
+│              percentages · poetic_description · similar_refs   │
+└─────────────────────────────────────────────────────────────────┘
 ```
-
-Additional compression:
-- `initial_hits` formatted as compact text (3 references, ~80 tokens) instead of `json.dumps(indent=2)` (~350 tokens)
-- Tool results stripped of non-essential fields before appending to conversation history
-- Composer receives a trimmed orchestrator result (`{notes, refs, reasoning}`) rather than the full response
-- `max_tokens` right-sized: orchestrator 1024, composer 1500
-
-Net result: **~65–70% fewer billed input tokens** vs. the naive implementation.
 
 ---
 
-## Tech Stack
+## Why the NLP layer exists
+
+The NLP layer runs on CPU before either LLM call. It converts the free-text description into structured signals that go directly into the orchestrator's context, reducing the amount of reasoning Claude needs to do — and therefore the number of tool rounds needed.
+
+| Component | Model | Output | How it's used |
+|---|---|---|---|
+| **Note extractor** | spaCy `EntityRuler` | `detected_notes: ["Cedar", "Oud"]` | Tells the orchestrator which notes the user explicitly named — these are treated as high-priority candidates and passed alongside pinned notes |
+| **Scent classifier** | sklearn TF-IDF + Logistic Regression | `predicted_family: "Woody"`, `confidence: 0.84` | Gives the orchestrator a prior on the scent family before it searches, reducing the chance of semantically drifted results |
+| **Embedder** | `all-MiniLM-L6-v2` (384-dim) | Dense vector | Used both at ingest time (encode the database) and at query time (encode the description for ChromaDB retrieval) |
+
+The classifier is trained once during ingestion on the 13,644 fragrance descriptions with concept tags as labels. It lives in `scent_classifier.pkl` and is loaded lazily per gunicorn worker.
+
+---
+
+## Knowledge base: `note_profiles.json`
+
+174 notes hand-crafted from perfumery literature (Arctander, IFRA standards, accord theory), augmented with ~1,000 additional notes mined from the dataset via co-occurrence analysis. Each entry:
+
+```jsonc
+"Bergamot": {
+  "volatility": "top",          // top / middle / base
+  "family": "Fresh/Citrus",
+  "descriptors": ["citrus", "green", "floral"],
+  "pairs_well_with": ["Neroli", "Lavender", "Cedar", ...]
+}
+```
+
+The `get_note_profile` tool serves this data to the orchestrator at runtime. When ≥2 notes are requested it also returns `shared_pairings` — the intersection of all their pairing sets — in the same call, removing the need for a separate round-trip that was previously a distinct `get_note_pairings` tool.
+
+---
+
+## Agentic design decisions
+
+**Two agents, not one.** The pipeline splits into grounding (orchestrator) and formulation (composer). The orchestrator has no idea what a percentage is; the composer never touches the database. Each agent's prompt is small, focused, and independently improvable.
+
+**Tools removed from the orchestrator:**
+- `validate_composition` — the orchestrator recommends notes, it doesn't build a formula. Giving it a validation tool caused Claude to waste a round drafting a composition just to check it, before the composer rebuilt it from scratch anyway.
+- `get_note_pairings` — merged into `get_note_profile` via `shared_pairings`. What was a 3-round flow (profile → pair → end_turn) is now typically 2 rounds.
+
+**Three-layer prompt caching** (Anthropic prompt cache, 90% discount on hits):
+
+```
+[system prompt]    ← cached cross-request (same text every call)
+[tools block]      ← cached cross-request (same schema every call)
+[user message]     ← cached within-request (identical across all rounds
+                      of the same orchestrator loop; rounds 2+ pay only
+                      for the new accumulated tool results)
+```
+
+**Parallel execution at two levels:**
+1. NLP preprocessing and ChromaDB search run concurrently before the first LLM call
+2. Multiple tool calls returned in a single orchestrator round are dispatched concurrently via `ThreadPoolExecutor`
+
+Result: ~65–70% fewer billed input tokens vs. the naive implementation; typical request completes in 2 orchestrator rounds instead of 3–5.
+
+---
+
+## Tech stack
 
 | Layer | Technology |
 |---|---|
 | LLM | Anthropic Claude claude-sonnet-4-6 |
 | Vector store | ChromaDB (embedded, cosine HNSW) |
 | Embeddings | `sentence-transformers/all-MiniLM-L6-v2` (384-dim) |
-| NER | spaCy `EntityRuler` — rule-based, no training data needed |
-| Scent classifier | scikit-learn TF-IDF + Logistic Regression (trained on dataset) |
+| NER | spaCy `EntityRuler` — rule-based, zero training data |
+| Scent classifier | scikit-learn TF-IDF + Logistic Regression |
 | Backend | Python 3.11 · Flask · gunicorn (4 workers) |
 | Frontend | React 18 · TypeScript 5 |
 | Deployment | Single Docker container — Flask serves both API and React build |
-
----
-
-## Data & Knowledge
-
-**Dataset** — `data_collection/dataset.csv`: 13,644 fragrance records (Brand, Name, Description, Notes, Concepts).
-
-**Note profiles** — `backend/data/note_profiles.json`: 174 hand-crafted notes from perfumery literature (Arctander, IFRA, accord theory), augmented with ~1,000 additional notes mined from the dataset via co-occurrence analysis. Each entry: `{volatility, family, descriptors, pairs_well_with}`.
-
-The ingestion script (`backend/scripts/ingest_dataset.py`) runs once at first boot (~8 min):
-1. Encodes all 13,644 records with `all-MiniLM-L6-v2` → ChromaDB
-2. Merges the hand-crafted corpus with dataset-derived pairings
-
----
-
-## Performance
-
-Cold-start latency was the main production reliability issue ("first request always slow"). Three root causes, all fixed:
-
-| Problem | Fix |
-|---|---|
-| ChromaDB HNSWLIB index loads on first query (10–30 s) | `gunicorn post_worker_init` calls `search_fragrance_db("warmup")` after each worker forks |
-| spaCy + sklearn models load on first request | `post_worker_init` also calls `preprocess("warmup")` — all models lazy-init thread-safely, then pre-loaded |
-| New Anthropic TCP/TLS connection per request | Singleton client reused across requests |
-
-NLP singletons (`NoteExtractor`, `ScentClassifier`, `Embedder`) use double-checked locking so they're created exactly once per worker under concurrent load.
 
 ---
 
@@ -134,11 +158,9 @@ All endpoints under `/api/v1/`.
 | POST | `/feedback` | 20 / hour | Submit 1–5 star rating with optional comment |
 | GET | `/notes` | — | All available fragrance note names |
 | GET | `/metrics` | 60 / min | Aggregated feedback statistics |
-| POST | `/share` | 10 / hour | Save a composition and get a shareable token |
+| POST | `/share` | 10 / hour | Save a composition, get a shareable token |
 | GET | `/share/<token>` | 120 / hour | Retrieve a shared composition |
 | GET | `/health` | — | Liveness check |
-
-### Generation request / response
 
 ```jsonc
 // POST /api/v1/generate
@@ -160,7 +182,7 @@ All endpoints under `/api/v1/`.
 
 ---
 
-## Local Development
+## Local development
 
 **Prerequisites:** Python 3.11+, Node 18+, `ANTHROPIC_API_KEY`
 
@@ -168,7 +190,7 @@ All endpoints under `/api/v1/`.
 # Backend
 cd backend
 pip install -r requirements.txt
-python scripts/ingest_dataset.py   # one-time, ~8 min
+python scripts/ingest_dataset.py   # one-time: builds ChromaDB + trains classifier (~8 min)
 ANTHROPIC_API_KEY=sk-ant-... python app.py
 # → http://localhost:5000
 
@@ -188,7 +210,7 @@ docker compose up --build
 
 ---
 
-## Deployment (Hugging Face Spaces)
+## Deployment (Hugging Face Spaces + GitHub Pages)
 
 ```bash
 docker build -f backend/Dockerfile -t sniff-ai .
@@ -196,8 +218,8 @@ docker build -f backend/Dockerfile -t sniff-ai .
 
 1. Create a Hugging Face Space (Docker SDK)
 2. Secrets: `ANTHROPIC_API_KEY`, `CORS_ORIGINS=https://ksek87.github.io`, `CHROMA_PERSIST_DIR=/data/chroma_db`
-3. Push `ghcr.io/ksek87/sniff_ai/backend:latest` (built by `docker.yml` on every push to `main`)
-4. First boot auto-ingests ChromaDB (~8 min), then serves on port 7860
+3. `docker.yml` builds and pushes `ghcr.io/ksek87/sniff_ai/backend:latest` on every push to `main`
+4. First boot auto-ingests ChromaDB and trains the classifier (~8 min), then serves on port 7860
 
 Frontend deploys to GitHub Pages via `pages.yml`.
 

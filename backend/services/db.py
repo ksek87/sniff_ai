@@ -3,7 +3,13 @@ import os
 
 from sqlalchemy import create_engine, Engine
 
-_DB_PATH = os.path.join(os.path.dirname(__file__), "../data/feedback.db")
+# /data is the HF Spaces persistent volume; fall back to a local path for dev
+_DATA_DIR = (
+    "/data"
+    if os.path.isdir("/data") and os.access("/data", os.W_OK)
+    else os.path.join(os.path.dirname(__file__), "../data")
+)
+_DB_PATH = os.environ.get("DB_PATH", os.path.join(_DATA_DIR, "feedback.db"))
 _DB_URL = f"sqlite:///{_DB_PATH}"
 
 _engine: Engine | None = None

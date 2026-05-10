@@ -343,7 +343,7 @@ def test_fetch_share_wrong_length_returns_400(client):
 
 
 def test_fetch_share_not_found_returns_404(client, monkeypatch):
-    from unittest.mock import patch
-    with patch("services.shares.get_share", return_value=None):
-        resp = client.get(f"/api/v1/share/{'b' * 32}")
+    import api.routes as _routes
+    monkeypatch.setattr(_routes, "get_share", lambda token: None)
+    resp = client.get(f"/api/v1/share/{'b' * 32}")
     assert resp.status_code == 404

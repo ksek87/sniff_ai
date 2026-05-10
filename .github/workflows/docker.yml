@@ -36,3 +36,9 @@ jobs:
         tags: ghcr.io/ksek87/sniff_ai/backend:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    - name: Restart Hugging Face Space
+      run: |
+        curl -sf -X POST \
+          "https://huggingface.co/api/spaces/ksek87/sniff-ai/restart?factory=true" \
+          -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}"

@@ -23,7 +23,6 @@ def get_note_profile(notes: list[str]) -> dict:
 
     When multiple notes are requested the response also includes
     'shared_pairings' — the intersection of all their pairing sets.
-    This removes the need for a separate get_note_pairings call.
     """
     profiles = _load()
     result: dict = {}

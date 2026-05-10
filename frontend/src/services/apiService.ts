@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { FragranceComposition, FeedbackPayload, SearchResult, Metrics, SharedFragrance } from '../types/fragrance';
+import { FragranceComposition, FeedbackPayload, Metrics, SharedFragrance } from '../types/fragrance';
 
 // Empty string = same origin (production); set REACT_APP_API_URL for local dev
 const BASE_URL = process.env.REACT_APP_API_URL ?? "";
@@ -19,23 +19,8 @@ export const submitFeedback = async (payload: FeedbackPayload): Promise<void> =>
   await axios.post(`${BASE_URL}/api/v1/feedback`, payload);
 };
 
-export const searchFragrances = async (
-  query: string,
-  family?: string
-): Promise<SearchResult[]> => {
-  const { data } = await axios.get<SearchResult[]>(`${BASE_URL}/api/v1/search`, {
-    params: { q: query, ...(family ? { family } : {}) },
-  });
-  return data;
-};
-
 export const fetchNotes = async (): Promise<string[]> => {
   const { data } = await axios.get<string[]>(`${BASE_URL}/api/v1/notes`);
-  return data;
-};
-
-export const fetchFamilies = async (): Promise<string[]> => {
-  const { data } = await axios.get<string[]>(`${BASE_URL}/api/v1/families`);
   return data;
 };
 

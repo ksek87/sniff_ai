@@ -4,8 +4,7 @@ from flask import Blueprint, request, jsonify
 from services.generate_fragrance import generate_fragrance_from_description
 from services.feedback import save_feedback, get_metrics
 from services.shares import save_share, get_share
-from services.tools.search_tool import search_fragrance_db
-from services.nlp import get_all_notes, get_all_families
+from services.nlp import get_all_notes
 from limiter import limiter
 
 logger = logging.getLogger(__name__)
@@ -87,30 +86,9 @@ def feedback():
     return jsonify({"status": "ok"}), 201
 
 
-@api_blueprint.route("/search", methods=["GET"])
-@limiter.limit("30 per hour")
-def search():
-    query = _sanitize(request.args.get("q", ""))
-    if not query:
-        return jsonify({"error": "q parameter is required"}), 400
-    if len(query) > _MAX_DESCRIPTION:
-        return jsonify({"error": f"q must be {_MAX_DESCRIPTION} characters or fewer"}), 400
-    try:
-        results = search_fragrance_db(query, top_k=10)
-    except Exception:
-        logger.exception("Search failed for query=%r", query)
-        return jsonify({"error": "Search failed. Please try again."}), 500
-    return jsonify(results)
-
-
 @api_blueprint.route("/notes", methods=["GET"])
 def notes():
     return jsonify(get_all_notes())
-
-
-@api_blueprint.route("/families", methods=["GET"])
-def families():
-    return jsonify(get_all_families())
 
 
 @api_blueprint.route("/metrics", methods=["GET"])

@@ -4,7 +4,6 @@ import DescriptionInput from './components/DescriptionInput';
 import FragranceCard from './components/FragranceCard';
 import NoteSelector from './components/NoteSelector';
 import FeedbackWidget from './components/FeedbackWidget';
-import SearchPanel from './components/SearchPanel';
 import MetricsDashboard from './components/MetricsDashboard';
 import ShareButton from './components/ShareButton';
 import { useFragranceGeneration } from './hooks/useFragranceGeneration';
@@ -105,7 +104,6 @@ const App: React.FC = () => {
         )}
 
         <div className="app-divider" />
-        <SearchPanel />
         <MetricsDashboard />
       </main>
     </div>

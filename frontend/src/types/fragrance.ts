@@ -28,15 +28,6 @@ export interface FeedbackPayload {
   comment?: string;
 }
 
-export interface SearchResult {
-  brand: string;
-  name: string;
-  notes: string;
-  concepts: string;
-  description: string;
-  similarity_score: number;
-}
-
 export interface Metrics {
   total_feedback: number;
   average_rating: number | null;

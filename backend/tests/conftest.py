@@ -61,7 +61,7 @@ def client():
         patch("services.nlp.note_extractor.NoteExtractor._build_ruler"),
         patch("services.nlp.scent_classifier.ScentClassifier._load_or_train"),
         patch("services.agents._client.anthropic"),
-        patch("services.tools.search_tool._get_collection") as mock_coll,
+        patch("services.tools.search_tool._get_collection") as mock_coll,  # used by orchestrator internally
         patch("services.generate_fragrance.orchestrator.run") as mock_orch,
         patch("services.generate_fragrance.composer.run") as mock_comp,
         patch("services.feedback.save_feedback"),

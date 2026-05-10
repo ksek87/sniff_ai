@@ -193,58 +193,12 @@ def test_feedback_with_comment_accepted(client):
     assert resp.status_code == 201
 
 
-# ── /api/v1/search ───────────────────────────────────────────────────────
-
-def test_search_returns_200_with_query(client):
-    resp = client.get("/api/v1/search?q=pine+forest")
-    assert resp.status_code == 200
-    assert isinstance(resp.get_json(), list)
-
-
-def test_search_missing_q_returns_400(client):
-    resp = client.get("/api/v1/search")
-    assert resp.status_code == 400
-    assert "q" in resp.get_json()["error"]
-
-
-def test_search_empty_q_returns_400(client):
-    resp = client.get("/api/v1/search?q=")
-    assert resp.status_code == 400
-
-
-def test_search_q_too_long_returns_400(client):
-    resp = client.get(f"/api/v1/search?q={'x' * 501}")
-    assert resp.status_code == 400
-
-
-def test_search_accepts_optional_family(client):
-    resp = client.get("/api/v1/search?q=rose&family=Floral")
-    assert resp.status_code == 200
-
-
 # ── /api/v1/notes ────────────────────────────────────────────────────────
 
 def test_notes_returns_list(client):
     resp = client.get("/api/v1/notes")
     assert resp.status_code == 200
     assert isinstance(resp.get_json(), list)
-
-
-# ── /api/v1/families ─────────────────────────────────────────────────────
-
-def test_families_returns_list(client):
-    resp = client.get("/api/v1/families")
-    assert resp.status_code == 200
-    data = resp.get_json()
-    assert isinstance(data, list)
-    assert len(data) > 0
-
-
-def test_families_contains_expected_values(client):
-    resp = client.get("/api/v1/families")
-    families = resp.get_json()
-    assert "Floral" in families
-    assert "Woody" in families
 
 
 # ── /api/v1/metrics ──────────────────────────────────────────────────────

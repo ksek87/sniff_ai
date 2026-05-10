@@ -27,3 +27,6 @@ Thumbs.db
 venv/
 env/
 .venv
+
+# Dataset — large CSV, not for public distribution
+data_collection/dataset.csv

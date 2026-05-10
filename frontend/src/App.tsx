@@ -64,7 +64,8 @@ const App: React.FC = () => {
 
       <header className="app-header">
         <h1>Sniff AI</h1>
-        <p className="app-tagline">Describe a feeling. We'll create the scent.</p>
+        <p className="app-tagline">From memory to molecule.</p>
+        <p className="app-subtitle">Every great fragrance begins as a feeling. Describe yours.</p>
       </header>
 
       <main className="app-main">

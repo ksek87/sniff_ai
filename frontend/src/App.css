@@ -64,10 +64,17 @@ body {
 }
 
 .app-tagline {
-  color: var(--color-muted);
+  color: var(--color-primary);
   font-style: italic;
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+
+.app-subtitle {
+  color: var(--color-muted);
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
 }
 
 .app-main {

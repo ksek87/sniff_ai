@@ -24,17 +24,11 @@ class NoteExtractor:
             logger.warning("note_profiles.json not found; NER will be disabled")
 
     def _build_ruler(self):
-        ruler = self.nlp.add_pipe("entity_ruler")
-        patterns = [
-            {"label": "FRAGRANCE_NOTE", "pattern": note}
-            for note in self.all_notes
-        ]
-        # Also add lowercase variants
-        patterns += [
-            {"label": "FRAGRANCE_NOTE", "pattern": note.lower()}
-            for note in self.all_notes
-            if note != note.lower()
-        ]
+        ruler = self.nlp.add_pipe(
+            "entity_ruler",
+            config={"phrase_matcher_attr": "LOWER"},
+        )
+        patterns = [{"label": "FRAGRANCE_NOTE", "pattern": note} for note in self.all_notes]
         ruler.add_patterns(patterns)
 
     def extract(self, text: str) -> list[str]:

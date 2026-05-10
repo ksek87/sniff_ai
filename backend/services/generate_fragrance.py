@@ -20,7 +20,7 @@ def generate_fragrance_from_description(
         preprocess_f = pool.submit(preprocess, description)
         search_f = pool.submit(search_fragrance_db, description, 5)
         context = preprocess_f.result()
-        context["initial_hits"] = search_f.result()
+        context["initial_hits"] = search_f.result()  # top_k=5; orchestrator prompt shows 3
     context["pinned_notes"] = pinned_notes or []
 
     last_exc: Exception | None = None

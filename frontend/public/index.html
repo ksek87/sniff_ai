@@ -16,7 +16,8 @@
         </section>
     </main>
     <footer>
-        <p>&copy; 2026 Sniff AI. All rights reserved.</p>
+        <p>&copy; <span id="cy"></span> Sniff AI. All rights reserved.</p>
+        <script>document.getElementById('cy').textContent=new Date().getFullYear();</script>
     </footer>
     <script src="bundle.js"></script>
 </body>

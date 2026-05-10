@@ -4,7 +4,7 @@ import os
 import chromadb
 from services.nlp.embedder import Embedder
 
-_CHROMA_DIR = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_db")
+_CHROMA_DIR = os.environ.get("CHROMA_PERSIST_DIR", "/data/chroma_db")
 _COLLECTION_NAME = "fragrances"
 
 _client: chromadb.PersistentClient | None = None

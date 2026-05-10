@@ -275,3 +275,75 @@ def test_root_returns_404_when_no_frontend_build(client):
 def test_unknown_path_returns_404_when_no_frontend_build(client):
     resp = client.get("/some/deep/route")
     assert resp.status_code == 404
+
+
+# ── /api/v1/share ─────────────────────────────────────────────────────────
+
+_SHARE_PAYLOAD = {
+    "input_description": "autumn forest after rain",
+    "composition": {
+        "name": "Forest Accord",
+        "scent_family": "Woody",
+        "top_notes": [{"note": "Bergamot", "percentage": 25}],
+        "middle_notes": [{"note": "Pine", "percentage": 40}],
+        "base_notes": [{"note": "Cedar", "percentage": 35}],
+        "poetic_description": "A walk through the woods.",
+        "similar_fragrances": [],
+        "confidence_score": 0.9,
+    },
+}
+
+
+def test_create_share_returns_201_with_token(client):
+    resp = client.post(
+        "/api/v1/share",
+        data=json.dumps(_SHARE_PAYLOAD),
+        content_type="application/json",
+    )
+    assert resp.status_code == 201
+    assert "token" in resp.get_json()
+
+
+def test_create_share_missing_description_returns_400(client):
+    payload = {**_SHARE_PAYLOAD, "input_description": ""}
+    resp = client.post(
+        "/api/v1/share",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400
+
+
+def test_create_share_missing_composition_returns_400(client):
+    resp = client.post(
+        "/api/v1/share",
+        data=json.dumps({"input_description": "forest"}),
+        content_type="application/json",
+    )
+    assert resp.status_code == 400
+
+
+def test_fetch_share_returns_200(client):
+    token = "a" * 32
+    resp = client.get(f"/api/v1/share/{token}")
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert "composition" in data
+    assert "input_description" in data
+
+
+def test_fetch_share_invalid_token_returns_400(client):
+    resp = client.get("/api/v1/share/not-valid!")
+    assert resp.status_code == 400
+
+
+def test_fetch_share_wrong_length_returns_400(client):
+    resp = client.get("/api/v1/share/tooshort")
+    assert resp.status_code == 400
+
+
+def test_fetch_share_not_found_returns_404(client, monkeypatch):
+    from unittest.mock import patch
+    with patch("services.shares.get_share", return_value=None):
+        resp = client.get(f"/api/v1/share/{'b' * 32}")
+    assert resp.status_code == 404

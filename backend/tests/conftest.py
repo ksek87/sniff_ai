@@ -66,6 +66,8 @@ def client():
         patch("services.generate_fragrance.composer.run") as mock_comp,
         patch("services.feedback.save_feedback"),
         patch("services.feedback.get_metrics") as mock_metrics,
+        patch("services.shares.save_share", return_value="a" * 32),
+        patch("services.shares.get_share") as mock_get_share,
     ):
         mock_coll.return_value.count.return_value = 100
         mock_coll.return_value.query.return_value = {
@@ -84,6 +86,10 @@ def client():
             "reasoning": "test",
         }
         mock_comp.return_value = MOCK_COMPOSITION
+        mock_get_share.return_value = {
+            "input_description": "autumn forest after rain",
+            "composition": MOCK_COMPOSITION,
+        }
         mock_metrics.return_value = {
             "total_feedback": 5,
             "average_rating": 4.2,

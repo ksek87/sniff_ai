@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
 
 const STAGES = [
-  { label: 'Analyzing your description',     threshold: 0 },
-  { label: 'Searching the fragrance database', threshold: 2 },
-  { label: 'Consulting the perfumer',          threshold: 6 },
-  { label: 'Composing your fragrance',         threshold: 18 },
+  { label: 'Analyzing your description',      seconds: 0 },
+  { label: 'Searching the fragrance database', seconds: 2 },
+  { label: 'Consulting the perfumer',          seconds: 6 },
+  { label: 'Composing your fragrance',         seconds: 18 },
 ];
+
+function activeStageIndex(elapsed: number): number {
+  let idx = 0;
+  for (let i = 0; i < STAGES.length; i++) {
+    if (elapsed >= STAGES[i].seconds) idx = i;
+  }
+  return idx;
+}
 
 const GenerationProgress: React.FC = () => {
   const [elapsed, setElapsed] = useState(0);
@@ -16,23 +24,23 @@ const GenerationProgress: React.FC = () => {
     return () => clearInterval(id);
   }, []);
 
-  const currentStage = STAGES.reduce(
-    (acc, s, i) => (elapsed >= s.threshold ? i : acc),
-    0
-  );
+  const activeIdx = activeStageIndex(elapsed);
 
   return (
     <div className="generation-progress" role="status" aria-live="polite">
       <ol className="progress-stages">
-        {STAGES.map((s, i) => {
-          const done   = i < currentStage;
-          const active = i === currentStage;
+        {STAGES.map((stage, i) => {
+          const done = i < activeIdx;
+          const active = i === activeIdx;
+          const className = ['progress-stage', done && 'done', active && 'active']
+            .filter(Boolean)
+            .join(' ');
           return (
-            <li key={s.label} className={`progress-stage${done ? ' done' : active ? ' active' : ''}`}>
+            <li key={stage.label} className={className}>
               <span className="stage-icon" aria-hidden="true">
                 {done ? '✓' : active ? <span className="stage-spinner" /> : '·'}
               </span>
-              <span className="stage-label">{s.label}</span>
+              <span className="stage-label">{stage.label}</span>
             </li>
           );
         })}

@@ -18,9 +18,15 @@ def _load() -> dict:
     return _profiles
 
 
-def get_note_profile(notes: list[str]) -> dict[str, dict]:
+def get_note_profile(notes: list[str]) -> dict:
+    """Return volatility, family, and pairing data for each note.
+
+    When multiple notes are requested the response also includes
+    'shared_pairings' — the intersection of all their pairing sets.
+    This removes the need for a separate get_note_pairings call.
+    """
     profiles = _load()
-    result: dict[str, dict] = {}
+    result: dict = {}
     for note in notes:
         profile = profiles.get(note) or profiles.get(note.title()) or profiles.get(note.lower())
         if profile:
@@ -32,6 +38,14 @@ def get_note_profile(notes: list[str]) -> dict[str, dict]:
                 "pairs_well_with": [],
                 "found": False,
             }
+
+    if len(notes) >= 2:
+        found = [n for n in notes if result[n]["found"]]
+        if len(found) >= 2:
+            sets = [set(result[n].get("pairs_well_with", [])) for n in found]
+            shared = sets[0].intersection(*sets[1:]) - set(notes)
+            result["shared_pairings"] = sorted(shared)[:10]
+
     return result
 
 
@@ -46,6 +60,5 @@ def get_note_pairings(notes: list[str], limit: int = 10) -> list[str]:
     if not sets:
         return []
     common = sets[0].intersection(*sets[1:]) if len(sets) > 1 else sets[0]
-    # Exclude the input notes themselves from suggestions
     common -= set(notes)
     return sorted(common)[:limit]

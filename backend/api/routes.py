@@ -1,3 +1,4 @@
+import logging
 import re
 from flask import Blueprint, request, jsonify
 from services.generate_fragrance import generate_fragrance_from_description
@@ -5,6 +6,8 @@ from services.feedback import save_feedback, get_metrics
 from services.tools.search_tool import search_fragrance_db
 from services.nlp import get_all_notes, get_all_families
 from limiter import limiter
+
+logger = logging.getLogger(__name__)
 
 try:
     from langfuse.decorators import langfuse_context
@@ -50,7 +53,11 @@ def generate():
             tags=["generate"],
         )
 
-    result = generate_fragrance_from_description(description, pinned_notes)
+    try:
+        result = generate_fragrance_from_description(description, pinned_notes)
+    except Exception:
+        logger.exception("Generation failed for description=%r", description)
+        return jsonify({"error": "Generation failed. Please try again."}), 500
     return jsonify(result)
 
 

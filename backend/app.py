@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask, jsonify, send_from_directory
 from flask_cors import CORS
@@ -6,6 +7,12 @@ from api.routes import api_blueprint
 from limiter import limiter
 
 load_dotenv()
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[logging.StreamHandler()],
+)
 
 app = Flask(__name__)
 

@@ -200,7 +200,6 @@ def run(context: dict) -> dict:
             system=[{"type": "text", "text": _SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=_TOOLS,
             messages=messages,
-            extra_headers={"anthropic-beta": "token-efficient-tool-use-2025-02-19"},
         )
 
         messages.append({"role": "assistant", "content": response.content})

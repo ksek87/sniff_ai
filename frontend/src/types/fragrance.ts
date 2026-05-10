@@ -43,11 +43,6 @@ export interface Metrics {
   rating_distribution: Record<string, number>;
 }
 
-export interface SharePayload {
-  input_description: string;
-  composition: FragranceComposition;
-}
-
 export interface SharedFragrance {
   input_description: string;
   composition: FragranceComposition;

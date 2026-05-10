@@ -9,25 +9,28 @@ import MetricsDashboard from './components/MetricsDashboard';
 import ShareButton from './components/ShareButton';
 import { useFragranceGeneration } from './hooks/useFragranceGeneration';
 import { fetchSharedFragrance } from './services/apiService';
-import { FragranceComposition } from './types/fragrance';
+import { SharedFragrance } from './types/fragrance';
 
 const App: React.FC = () => {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [pinnedNotes, setPinnedNotes] = useState<string[]>([]);
   const { composition, description, loading, error, generate } = useFragranceGeneration();
 
-  const [sharedFragrance, setSharedFragrance] = useState<{
-    description: string;
-    composition: FragranceComposition;
-  } | null>(null);
+  const [sharedFragrance, setSharedFragrance] = useState<SharedFragrance | null>(null);
   const [shareError, setShareError] = useState<string | null>(null);
 
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get('share');
     if (!token) return;
-    fetchSharedFragrance(token)
-      .then(result => setSharedFragrance({ description: result.input_description, composition: result.composition }))
-      .catch(() => setShareError('Could not load shared fragrance — the link may have expired.'));
+    const controller = new AbortController();
+    fetchSharedFragrance(token, controller.signal)
+      .then(setSharedFragrance)
+      .catch(err => {
+        if (!controller.signal.aborted) {
+          setShareError('Could not load shared fragrance — the link may have expired.');
+        }
+      });
+    return () => controller.abort();
   }, []);
 
   const handleToggleNote = (note: string) => {
@@ -44,7 +47,7 @@ const App: React.FC = () => {
   };
 
   const displayComposition = sharedFragrance?.composition ?? composition;
-  const displayDescription = sharedFragrance?.description ?? description;
+  const displayDescription = sharedFragrance?.input_description ?? description;
 
   return (
     <div className="app">

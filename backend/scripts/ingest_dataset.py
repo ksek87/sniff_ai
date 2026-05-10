@@ -6,6 +6,7 @@ Run from the backend/ directory:
 import ast
 import json
 import os
+import re
 import sys
 
 import pandas as pd
@@ -23,12 +24,17 @@ _COLLECTION_NAME = "fragrances"
 _BATCH_SIZE = int(os.environ.get("INGEST_BATCH_SIZE", 512))
 
 
+_SCRAPER_ARTIFACT = re.compile(r"\.?\s*Discover more details!", re.IGNORECASE)
+
+
 def _safe_parse(val) -> list:
     if not isinstance(val, str):
         return []
     try:
         result = ast.literal_eval(val)
-        return result if isinstance(result, list) else []
+        if not isinstance(result, list):
+            return []
+        return [_SCRAPER_ARTIFACT.sub("", str(item)).strip() for item in result]
     except Exception:
         return []
 

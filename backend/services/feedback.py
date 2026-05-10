@@ -1,34 +1,30 @@
 from __future__ import annotations
 import json
-import os
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import text
+from services.db import get_engine
 
-_DB_PATH = os.path.join(os.path.dirname(__file__), "../data/feedback.db")
-_DB_URL = f"sqlite:///{_DB_PATH}"
-
-_engine = None
+_initialized = False
 
 
-def _get_engine():
-    global _engine
-    if _engine is None:
-        os.makedirs(os.path.dirname(_DB_PATH), exist_ok=True)
-        _engine = create_engine(_DB_URL, connect_args={"check_same_thread": False})
-        with _engine.connect() as conn:
-            conn.execute(text("""
-                CREATE TABLE IF NOT EXISTS feedback (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    session_id TEXT NOT NULL,
-                    input_description TEXT NOT NULL,
-                    composition_json TEXT NOT NULL,
-                    rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
-                    comment TEXT DEFAULT '',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            """))
-            conn.commit()
-    return _engine
+def _ensure_table() -> None:
+    global _initialized
+    if _initialized:
+        return
+    with get_engine().connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS feedback (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                input_description TEXT NOT NULL,
+                composition_json TEXT NOT NULL,
+                rating INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+                comment TEXT DEFAULT '',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """))
+        conn.commit()
+    _initialized = True
 
 
 def save_feedback(
@@ -38,8 +34,8 @@ def save_feedback(
     rating: int,
     comment: str = "",
 ) -> None:
-    engine = _get_engine()
-    with engine.connect() as conn:
+    _ensure_table()
+    with get_engine().connect() as conn:
         conn.execute(
             text("""
                 INSERT INTO feedback (session_id, input_description, composition_json, rating, comment)
@@ -57,8 +53,8 @@ def save_feedback(
 
 
 def get_metrics() -> dict:
-    engine = _get_engine()
-    with engine.connect() as conn:
+    _ensure_table()
+    with get_engine().connect() as conn:
         row = conn.execute(
             text("SELECT COUNT(*), AVG(rating) FROM feedback")
         ).one()

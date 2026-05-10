@@ -69,8 +69,8 @@ def client():
         patch("services.generate_fragrance.composer.run") as mock_comp,
         patch("services.feedback.save_feedback"),
         patch("services.feedback.get_metrics") as mock_metrics,
-        patch("services.shares.save_share", return_value="a" * 32),
-        patch("services.shares.get_share") as mock_get_share,
+        patch("api.routes.save_share", return_value="a" * 32),
+        patch("api.routes.get_share") as mock_get_share,
     ):
         mock_coll.return_value.count.return_value = 100
         mock_coll.return_value.query.return_value = {

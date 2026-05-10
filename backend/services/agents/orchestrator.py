@@ -21,18 +21,7 @@ from services.tools.note_profile_tool import get_note_profile
 
 logger = logging.getLogger(__name__)
 
-_MAX_TOOL_ROUNDS = 3  # rarely needs more than 2 with the merged profile tool
-
-# Two focused tools instead of four:
-#   - search_fragrance_db  – grounding in real fragrances
-#   - get_note_profile     – volatility, family, pairings (shared_pairings included for multi-note calls)
-#
-# validate_composition is removed: the orchestrator recommends notes, it doesn't
-# build the final formula. Validation is handled server-side in the composer.
-# get_note_pairings is removed: get_note_profile now returns shared_pairings
-# automatically when ≥2 notes are requested, saving a round-trip.
-#
-# cache_control on the last tool caches the entire tools block alongside the system prompt.
+_MAX_TOOL_ROUNDS = 3
 _TOOLS: list[dict] = [
     {
         "name": "search_fragrance_db",

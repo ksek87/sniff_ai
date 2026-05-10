@@ -12,7 +12,9 @@ def _load() -> dict:
     if _profiles is None:
         if os.path.exists(_PROFILES_PATH):
             with open(_PROFILES_PATH) as f:
-                _profiles = json.load(f)
+                raw = json.load(f)
+            # Lowercase-keyed index for O(1) case-insensitive lookup
+            _profiles = {k.lower(): v for k, v in raw.items()}
         else:
             _profiles = {}
     return _profiles
@@ -23,12 +25,11 @@ def get_note_profile(notes: list[str]) -> dict:
 
     When multiple notes are requested the response also includes
     'shared_pairings' — the intersection of all their pairing sets.
-    This removes the need for a separate get_note_pairings call.
     """
     profiles = _load()
     result: dict = {}
     for note in notes:
-        profile = profiles.get(note) or profiles.get(note.title()) or profiles.get(note.lower())
+        profile = profiles.get(note.lower())
         if profile:
             result[note] = {**profile, "found": True}
         else:
@@ -54,7 +55,7 @@ def get_note_pairings(notes: list[str], limit: int = 10) -> list[str]:
     profiles = _load()
     sets: list[set[str]] = []
     for note in notes:
-        profile = profiles.get(note) or profiles.get(note.title()) or profiles.get(note.lower())
+        profile = profiles.get(note.lower())
         if profile:
             sets.append(set(profile.get("pairs_well_with", [])))
     if not sets:

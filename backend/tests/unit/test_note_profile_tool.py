@@ -7,9 +7,9 @@ from unittest.mock import patch
 
 
 _SAMPLE_PROFILES = {
-    "Bergamot": {"volatility": "top", "family": "Fresh/Citrus", "pairs_well_with": ["Lemon", "Cedar"]},
-    "Rose": {"volatility": "middle", "family": "Floral", "pairs_well_with": ["Jasmine", "Cedar"]},
-    "Musk": {"volatility": "base", "family": "Oriental", "pairs_well_with": ["Amber"]},
+    "bergamot": {"volatility": "top", "family": "Fresh/Citrus", "pairs_well_with": ["Lemon", "Cedar"]},
+    "rose": {"volatility": "middle", "family": "Floral", "pairs_well_with": ["Jasmine", "Cedar"]},
+    "musk": {"volatility": "base", "family": "Oriental", "pairs_well_with": ["Amber"]},
 }
 
 

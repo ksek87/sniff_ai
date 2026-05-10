@@ -5,7 +5,7 @@ and prepare the context the Composition Agent needs.
 from __future__ import annotations
 import json
 import logging
-import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 try:
     from langfuse.decorators import observe
@@ -14,8 +14,6 @@ except ImportError:
         def decorator(func):
             return func
         return decorator
-
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from services.agents._client import _MODEL, get_client
 
@@ -27,32 +25,25 @@ logger = logging.getLogger(__name__)
 
 _MAX_TOOL_ROUNDS = 5
 
+# cache_control on the last tool marks the entire tools block for caching.
+# Combined with the cached system prompt this means only the user message +
+# accumulated tool rounds are billed at full price after the first call.
 _TOOLS: list[dict] = [
     {
         "name": "search_fragrance_db",
         "description": (
             "Search the fragrance database using semantic similarity. "
-            "Returns real-world fragrances most similar to the query description. "
-            "Use this to ground the composition in real fragrance knowledge. "
-            "Optionally filter by scent family to reduce cross-family noise."
+            "Returns real-world fragrances most similar to the query. "
+            "Optionally filter by scent family."
         ),
         "input_schema": {
             "type": "object",
             "properties": {
-                "query": {"type": "string", "description": "Descriptive search query"},
-                "top_k": {
-                    "type": "integer",
-                    "description": "Number of results to return (1–15)",
-                    "default": 8,
-                },
+                "query": {"type": "string"},
+                "top_k": {"type": "integer", "default": 8},
                 "family": {
                     "type": "string",
-                    "description": (
-                        "Optional scent family filter. Only results whose concepts "
-                        "include this family are returned. One of: Floral, Oriental, "
-                        "Woody, Fresh/Citrus, Fougère, Chypre, Gourmand, "
-                        "Aquatic/Marine, Earthy/Mossy."
-                    ),
+                    "description": "Optional: Floral, Oriental, Woody, Fresh/Citrus, Fougère, Chypre, Gourmand, Aquatic/Marine, Earthy/Mossy",
                 },
             },
             "required": ["query"],
@@ -60,90 +51,80 @@ _TOOLS: list[dict] = [
     },
     {
         "name": "get_note_profile",
-        "description": (
-            "Get the volatility class (top/middle/base), scent family, and "
-            "best pairing notes for one or more fragrance ingredients. "
-            "The 'found' field in each result indicates whether the note exists "
-            "in the database (false means an unknown ingredient — avoid it)."
-        ),
+        "description": "Get volatility (top/middle/base), family, and pairing notes for one or more fragrance ingredients. 'found: false' means unknown — avoid it.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "notes": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "List of fragrance note names",
-                }
+                "notes": {"type": "array", "items": {"type": "string"}},
             },
             "required": ["notes"],
         },
     },
     {
         "name": "get_note_pairings",
-        "description": (
-            "Given a list of notes already selected for the composition, return "
-            "notes that pair well with ALL of them (intersection of pairing sets). "
-            "Useful for filling remaining tiers with data-grounded suggestions."
-        ),
+        "description": "Given committed notes, return notes that pair well with ALL of them (intersection). Useful for filling remaining tiers.",
         "input_schema": {
             "type": "object",
             "properties": {
-                "notes": {
-                    "type": "array",
-                    "items": {"type": "string"},
-                    "description": "Notes already committed to the composition",
-                },
-                "limit": {
-                    "type": "integer",
-                    "description": "Maximum number of suggestions to return",
-                    "default": 10,
-                },
+                "notes": {"type": "array", "items": {"type": "string"}},
+                "limit": {"type": "integer", "default": 10},
             },
             "required": ["notes"],
         },
     },
     {
         "name": "validate_composition",
-        "description": (
-            "Validate a draft fragrance composition. Checks that percentages sum "
-            "to 100%, tiers are balanced, and the scent family is recognised. "
-            "Each error has a 'severity' of 'critical' (must fix) or 'warning' (acceptable)."
-        ),
+        "description": "Validate a draft composition: checks percentages sum to 100, tier balance, and recognised family. Errors have severity 'critical' or 'warning'.",
         "input_schema": {
             "type": "object",
             "properties": {
                 "composition": {
                     "type": "object",
-                    "description": "FragranceComposition object to validate",
-                }
+                    "description": "FragranceComposition with top_notes, middle_notes, base_notes, scent_family",
+                },
             },
             "required": ["composition"],
         },
+        "cache_control": {"type": "ephemeral"},
     },
 ]
 
-_SYSTEM_PROMPT = """You are a master perfumer's assistant with deep knowledge of fragrance chemistry and composition.
+_SYSTEM_PROMPT = """You are a master perfumer's assistant. Use the tools to gather fragrance knowledge, then return your findings as JSON.
 
-Your job is to use the available tools to build rich, grounded context for creating a new fragrance composition from a user's description.
+Workflow:
+1. Review the pre-loaded search results in the user message.
+2. Call get_note_profile on the most relevant notes (and any pinned notes).
+3. Call search_fragrance_db only if you need additional targeted references.
 
-Strategy:
-1. Review the pre-loaded semantic search results provided in the user message.
-2. Use get_note_profile to understand the volatility and pairing properties of the most relevant notes.
-3. If the user has specified pinned notes, call get_note_profile on those as well.
-4. Call search_fragrance_db only if you need more targeted references beyond the pre-loaded ones.
-5. Return a JSON summary of your findings in this exact structure:
+Return this exact JSON at end_turn (no markdown):
+{"reference_fragrances":[...],"recommended_notes":{"top":[...],"middle":[...],"base":[...]},"reasoning":"..."}
 
-{
-  "reference_fragrances": [...],
-  "recommended_notes": {
-    "top": ["note1", "note2"],
-    "middle": ["note3", "note4"],
-    "base": ["note5", "note6"]
-  },
-  "reasoning": "Brief explanation of why these notes fit the description"
-}
+Only use notes that exist in real perfumery. Prefer notes from the provided references."""
 
-Be precise. Do not invent notes that don't exist in perfumery. Prefer notes that appear in the reference fragrances."""
+
+def _compress_for_history(tool_name: str, result: object) -> object:
+    """Strip non-essential fields from tool results before appending to conversation history."""
+    if tool_name == "search_fragrance_db" and isinstance(result, list):
+        return [
+            {
+                "name": r["name"],
+                "brand": r["brand"],
+                "notes": (r.get("notes") or "")[:80],
+                "score": r["similarity_score"],
+            }
+            for r in result[:5]
+        ]
+    if tool_name == "get_note_profile" and isinstance(result, dict):
+        return {
+            note: {
+                "volatility": p.get("volatility"),
+                "family": p.get("family"),
+                "pairs": p.get("pairs_well_with", [])[:6],
+                "found": p.get("found"),
+            }
+            for note, p in result.items()
+        }
+    return result
 
 
 def _dispatch_tool(tool_name: str, tool_input: dict):
@@ -174,31 +155,31 @@ def run(context: dict) -> dict:
     client = get_client()
 
     user_message = (
-        f"Create a fragrance composition for this description:\n\n"
-        f"\"{context['description']}\"\n\n"
-        f"Detected notes (explicitly mentioned): "
-        f"{context.get('detected_notes', []) or 'none'}\n"
-        f"Predicted scent family: {context.get('predicted_family', 'unknown')} "
-        f"(confidence: {context.get('family_confidence', 0):.0%})\n"
+        f"Create a fragrance for: \"{context['description']}\"\n"
+        f"Detected notes: {context.get('detected_notes') or 'none'}\n"
+        f"Predicted family: {context.get('predicted_family', 'unknown')} "
+        f"({context.get('family_confidence', 0):.0%} confidence)\n"
     )
     if context.get("pinned_notes"):
-        user_message += f"Required notes (user-pinned): {context['pinned_notes']}\n"
+        user_message += f"Required notes: {context['pinned_notes']}\n"
 
     initial_hits = context.get("initial_hits", [])
     if initial_hits:
-        user_message += (
-            f"\nPre-loaded semantic search results ({len(initial_hits)} references):\n"
-            f"{json.dumps(initial_hits[:5], indent=2)}\n\n"
-            f"Use these as your primary reference set. Call search_fragrance_db "
-            f"only if you need additional targeted results."
+        hits_lines = "\n".join(
+            f"- {h['name']} by {h['brand']} ({h['similarity_score']:.2f}): {(h.get('notes') or '')[:80]}"
+            for h in initial_hits[:3]
         )
+        user_message += f"\nTop references:\n{hits_lines}\n\nPrefer notes from these; call search only if you need more."
 
-    messages = [{"role": "user", "content": user_message}]
+    # Cache the user message so rounds 2+ pay only for the new accumulated content.
+    messages = [{"role": "user", "content": [
+        {"type": "text", "text": user_message, "cache_control": {"type": "ephemeral"}}
+    ]}]
 
     for _ in range(_MAX_TOOL_ROUNDS):
         response = client.messages.create(
             model=_MODEL,
-            max_tokens=2048,
+            max_tokens=1024,
             system=[{"type": "text", "text": _SYSTEM_PROMPT, "cache_control": {"type": "ephemeral"}}],
             tools=_TOOLS,
             messages=messages,
@@ -232,8 +213,16 @@ def run(context: dict) -> dict:
         with ThreadPoolExecutor(max_workers=len(tool_blocks)) as pool:
             futs = {pool.submit(_dispatch_tool, b.name, b.input): b for b in tool_blocks}
             results_by_id = {futs[f].id: f.result() for f in as_completed(futs)}
+
         tool_results = [
-            {"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(results_by_id[b.id])}
+            {
+                "type": "tool_result",
+                "tool_use_id": b.id,
+                "content": json.dumps(
+                    _compress_for_history(b.name, results_by_id[b.id]),
+                    separators=(',', ':'),
+                ),
+            }
             for b in tool_blocks
         ]
         messages.append({"role": "user", "content": tool_results})

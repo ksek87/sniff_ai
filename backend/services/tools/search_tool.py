@@ -7,9 +7,10 @@ from services.nlp.embedder import Embedder
 _CHROMA_DIR = os.environ.get("CHROMA_PERSIST_DIR", "/data/chroma_db")
 _COLLECTION_NAME = "fragrances"
 
+_embedder = Embedder()
+
 _client: chromadb.PersistentClient | None = None
 _collection = None
-_embedder = Embedder()
 
 
 def _get_collection():

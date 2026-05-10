@@ -9,9 +9,4 @@ if [ ! -d "$CHROMA_DIR" ] || [ -z "$(ls -A "$CHROMA_DIR" 2>/dev/null)" ]; then
     echo "Ingestion complete."
 fi
 
-exec gunicorn -w 2 -b "0.0.0.0:${PORT:-7860}" \
-    --timeout 300 \
-    --access-logfile - \
-    --error-logfile - \
-    --log-level info \
-    app:app
+exec gunicorn -c gunicorn_config.py app:app

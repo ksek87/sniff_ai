@@ -7,11 +7,16 @@ except ImportError:
     import anthropic
 
 _MODEL = os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-6")
-_TIMEOUT = 60.0
+_TIMEOUT = 120.0
+
+_client: anthropic.Anthropic | None = None
 
 
 def get_client() -> anthropic.Anthropic:
-    return anthropic.Anthropic(
-        api_key=os.environ.get("ANTHROPIC_API_KEY"),
-        timeout=_TIMEOUT,
-    )
+    global _client
+    if _client is None:
+        _client = anthropic.Anthropic(
+            api_key=os.environ.get("ANTHROPIC_API_KEY"),
+            timeout=_TIMEOUT,
+        )
+    return _client

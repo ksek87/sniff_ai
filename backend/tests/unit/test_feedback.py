@@ -9,10 +9,13 @@ import pytest
 
 @pytest.fixture(autouse=True)
 def _isolated_db(tmp_path, monkeypatch):
-    """Point feedback module at a fresh temp SQLite for each test."""
+    """Point the shared db module at a fresh temp SQLite for each test."""
+    import services.db as _db
+    import services.feedback as _fb
     db_path = tmp_path / "test_feedback.db"
-    monkeypatch.setattr("services.feedback._DB_URL", f"sqlite:///{db_path}")
-    monkeypatch.setattr("services.feedback._engine", None)
+    monkeypatch.setattr(_db, "_DB_URL", f"sqlite:///{db_path}")
+    monkeypatch.setattr(_db, "_engine", None)
+    monkeypatch.setattr(_fb, "_initialized", False)
 
 
 def test_metrics_empty_database():

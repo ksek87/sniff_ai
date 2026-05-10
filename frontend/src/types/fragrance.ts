@@ -28,17 +28,13 @@ export interface FeedbackPayload {
   comment?: string;
 }
 
-export interface SearchResult {
-  brand: string;
-  name: string;
-  notes: string;
-  concepts: string;
-  description: string;
-  similarity_score: number;
-}
-
 export interface Metrics {
   total_feedback: number;
   average_rating: number | null;
   rating_distribution: Record<string, number>;
+}
+
+export interface SharedFragrance {
+  input_description: string;
+  composition: FragranceComposition;
 }

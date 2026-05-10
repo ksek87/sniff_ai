@@ -3,8 +3,8 @@ import re
 from flask import Blueprint, request, jsonify
 from services.generate_fragrance import generate_fragrance_from_description
 from services.feedback import save_feedback, get_metrics
-from services.tools.search_tool import search_fragrance_db
-from services.nlp import get_all_notes, get_all_families
+from services.shares import save_share, get_share
+from services.nlp import get_all_notes
 from limiter import limiter
 
 logger = logging.getLogger(__name__)
@@ -86,33 +86,45 @@ def feedback():
     return jsonify({"status": "ok"}), 201
 
 
-@api_blueprint.route("/search", methods=["GET"])
-@limiter.limit("30 per hour")
-def search():
-    query = _sanitize(request.args.get("q", ""))
-    if not query:
-        return jsonify({"error": "q parameter is required"}), 400
-    if len(query) > _MAX_DESCRIPTION:
-        return jsonify({"error": f"q must be {_MAX_DESCRIPTION} characters or fewer"}), 400
-    try:
-        results = search_fragrance_db(query, top_k=10)
-    except Exception:
-        logger.exception("Search failed for query=%r", query)
-        return jsonify({"error": "Search failed. Please try again."}), 500
-    return jsonify(results)
-
-
 @api_blueprint.route("/notes", methods=["GET"])
 def notes():
     return jsonify(get_all_notes())
-
-
-@api_blueprint.route("/families", methods=["GET"])
-def families():
-    return jsonify(get_all_families())
 
 
 @api_blueprint.route("/metrics", methods=["GET"])
 @limiter.limit("60 per minute")
 def metrics():
     return jsonify(get_metrics())
+
+
+@api_blueprint.route("/share", methods=["POST"])
+@limiter.limit("10 per hour")
+def create_share():
+    data = request.get_json(silent=True) or {}
+    description = _sanitize(str(data.get("input_description", "")))
+    if not description:
+        return jsonify({"error": "input_description is required"}), 400
+    composition = data.get("composition")
+    if not isinstance(composition, dict):
+        return jsonify({"error": "composition is required"}), 400
+    try:
+        token = save_share(description, composition)
+    except Exception:
+        logger.exception("Share save failed")
+        return jsonify({"error": "Failed to create share link. Please try again."}), 500
+    return jsonify({"token": token}), 201
+
+
+@api_blueprint.route("/share/<token>", methods=["GET"])
+@limiter.limit("120 per hour")
+def fetch_share(token: str):
+    if not token.isalnum() or len(token) != 32:
+        return jsonify({"error": "Invalid share token"}), 400
+    try:
+        result = get_share(token)
+    except Exception:
+        logger.exception("Share lookup failed for token=%r", token)
+        return jsonify({"error": "Failed to retrieve shared fragrance."}), 500
+    if result is None:
+        return jsonify({"error": "Share not found"}), 404
+    return jsonify(result)

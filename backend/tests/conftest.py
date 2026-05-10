@@ -3,8 +3,10 @@ conftest.py — session-level stubs and shared fixtures.
 
 sentence_transformers is stubbed in sys.modules at the very top so the
 Embedder singleton never tries to download or load model weights.
-All fixtures import app *inside* their context so module-level singletons
-are constructed while the patches are active.
+
+With lazy NLP initialization (services/nlp/__init__.py), the app import no
+longer triggers model loading at import time, so it is safe to import here at
+module level rather than inside each fixture's patch context.
 """
 import sys
 
@@ -13,7 +15,7 @@ from unittest.mock import MagicMock
 
 # ── Stub sentence_transformers before any app code can import it ──────────
 _st_model = MagicMock()
-_st_model.encode.return_value = np.zeros(384, dtype=np.float32)  # has .tolist()
+_st_model.encode.return_value = np.zeros(384, dtype=np.float32)
 _st_module = MagicMock()
 _st_module.SentenceTransformer.return_value = _st_model
 sys.modules.setdefault("sentence_transformers", _st_module)
@@ -21,6 +23,9 @@ sys.modules.setdefault("sentence_transformers", _st_module)
 
 import pytest
 from unittest.mock import patch
+
+from app import app as flask_app
+from limiter import limiter as _limiter
 
 
 MOCK_COMPOSITION = {
@@ -66,6 +71,8 @@ def client():
         patch("services.generate_fragrance.composer.run") as mock_comp,
         patch("services.feedback.save_feedback"),
         patch("services.feedback.get_metrics") as mock_metrics,
+        patch("services.shares.save_share", return_value="a" * 32),
+        patch("services.shares.get_share") as mock_get_share,
     ):
         mock_coll.return_value.count.return_value = 100
         mock_coll.return_value.query.return_value = {
@@ -84,18 +91,23 @@ def client():
             "reasoning": "test",
         }
         mock_comp.return_value = MOCK_COMPOSITION
+        mock_get_share.return_value = {
+            "input_description": "autumn forest after rain",
+            "composition": MOCK_COMPOSITION,
+        }
         mock_metrics.return_value = {
             "total_feedback": 5,
             "average_rating": 4.2,
             "rating_distribution": {"1": 0, "2": 0, "3": 1, "4": 2, "5": 2},
         }
 
-        from app import app
-        from limiter import limiter as _limiter
-        app.config["TESTING"] = True
-        # Flask-Limiter 4.x caches self.enabled at init_app time, so we must
-        # set the attribute directly to disable rate limiting in tests.
+        # Also reset NLP singletons so each fixture gets a fresh lazy instance
+        import services.nlp as _nlp
+        _nlp._note_extractor = None
+        _nlp._classifier = None
+
+        flask_app.config["TESTING"] = True
         _limiter.enabled = False
-        with app.test_client() as c:
+        with flask_app.test_client() as c:
             yield c
         _limiter.enabled = True

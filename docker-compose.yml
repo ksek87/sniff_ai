@@ -6,17 +6,18 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     ports:
-      - "5000:5000"
+      - "7860:7860"
     environment:
-      - PORT=5000
+      - PORT=7860
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - CHROMA_PERSIST_DIR=/app/chroma_db
+      - CHROMA_PERSIST_DIR=/data/chroma_db
       - FLASK_ENV=${FLASK_ENV:-development}
     volumes:
       - ./backend:/app
       - ./data_collection:/data_collection:ro
+      - sniffai_data:/data
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:7860/health')"]
       interval: 30s
       retries: 3
     networks:
@@ -25,3 +26,6 @@ services:
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  sniffai_data:

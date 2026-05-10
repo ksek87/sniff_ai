@@ -4,9 +4,10 @@ conftest.py — session-level stubs and shared fixtures.
 sentence_transformers is stubbed in sys.modules at the very top so the
 Embedder singleton never tries to download or load model weights.
 
-With lazy NLP initialization (services/nlp/__init__.py), the app import no
-longer triggers model loading at import time, so it is safe to import here at
-module level rather than inside each fixture's patch context.
+The `from app import app` call is inside the client fixture (not at module
+level) because app.py pulls in Flask and several service modules. Unit tests
+that don't use the client fixture shouldn't pay that import cost or fail due
+to missing production dependencies (Flask, chromadb, etc.).
 """
 import sys
 
@@ -23,9 +24,6 @@ sys.modules.setdefault("sentence_transformers", _st_module)
 
 import pytest
 from unittest.mock import patch
-
-from app import app as flask_app
-from limiter import limiter as _limiter
 
 
 MOCK_COMPOSITION = {
@@ -101,10 +99,14 @@ def client():
             "rating_distribution": {"1": 0, "2": 0, "3": 1, "4": 2, "5": 2},
         }
 
-        # Also reset NLP singletons so each fixture gets a fresh lazy instance
+        # Reset NLP singletons so each fixture gets a fresh lazy instance
+        # created while the patches on _load_notes / _load_or_train are active.
         import services.nlp as _nlp
         _nlp._note_extractor = None
         _nlp._classifier = None
+
+        from app import app as flask_app
+        from limiter import limiter as _limiter
 
         flask_app.config["TESTING"] = True
         _limiter.enabled = False

@@ -18,7 +18,7 @@ def generate_fragrance_from_description(
 ) -> dict:
     with ThreadPoolExecutor(max_workers=2) as pool:
         preprocess_f = pool.submit(preprocess, description)
-        search_f = pool.submit(search_fragrance_db, description, 10)
+        search_f = pool.submit(search_fragrance_db, description, 5)
         context = preprocess_f.result()
         context["initial_hits"] = search_f.result()
     context["pinned_notes"] = pinned_notes or []

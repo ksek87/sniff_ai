@@ -33,7 +33,9 @@ jobs:
         context: .
         file: backend/Dockerfile
         push: true
-        tags: ghcr.io/ksek87/sniff_ai/backend:latest
+        tags: |
+          ghcr.io/ksek87/sniff_ai/backend:latest
+          ghcr.io/ksek87/sniff_ai/backend:${{ github.sha }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -42,3 +44,4 @@ jobs:
         curl -sf -X POST \
           "https://huggingface.co/api/spaces/ksek87/sniff-ai/restart?factory=true" \
           -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}"
+        echo "Deployed image: ghcr.io/ksek87/sniff_ai/backend:${{ github.sha }}"

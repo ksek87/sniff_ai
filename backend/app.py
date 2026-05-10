@@ -44,16 +44,6 @@ def serve_react(path):
         return send_from_directory(_FRONTEND_BUILD, "index.html")
 
 
-# Warm up ChromaDB at worker startup — calling query() forces HNSWLIB to load
-# its vector index so the first real request doesn't pay the 10–30 s cold-start
-# cost. In tests, _get_collection is mocked so this call is a no-op.
-try:
-    from services.tools.search_tool import search_fragrance_db as _warmup_chroma
-    _warmup_chroma("warmup")
-except Exception:
-    pass
-
-
 if __name__ == "__main__":
     # Dev-only path — production uses gunicorn via start.sh.
     # Bind to loopback only; never expose the dev server to all interfaces.

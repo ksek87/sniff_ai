@@ -3,8 +3,12 @@ conftest.py — session-level stubs and shared fixtures.
 
 sentence_transformers is stubbed in sys.modules at the very top so the
 Embedder singleton never tries to download or load model weights.
-All fixtures import app *inside* their context so module-level singletons
-are constructed while the patches are active.
+
+The `from app import app` call is inside the patch context because
+services/nlp/__init__.py instantiates NoteExtractor, Embedder, and
+ScentClassifier at module level. Those __init__ methods touch the filesystem
+and model weights, so the patches must be active before the first import.
+TODO: move to an application factory (create_app()) to eliminate this coupling.
 """
 import sys
 

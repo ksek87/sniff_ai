@@ -20,7 +20,7 @@ _DATASET_PATH = os.path.join(
 _CHROMA_DIR = os.environ.get("CHROMA_PERSIST_DIR", "./chroma_db")
 _PROFILES_PATH = os.path.join(os.path.dirname(__file__), "../data/note_profiles.json")
 _COLLECTION_NAME = "fragrances"
-_BATCH_SIZE = 256
+_BATCH_SIZE = int(os.environ.get("INGEST_BATCH_SIZE", 512))
 
 
 def _safe_parse(val) -> list:

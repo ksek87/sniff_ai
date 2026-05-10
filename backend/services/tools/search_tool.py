@@ -25,13 +25,12 @@ def _get_collection():
 
 def search_fragrance_db(query: str, top_k: int = 10, family: str | None = None) -> list[dict]:
     collection = _get_collection()
-    if collection.count() == 0:
+    count = collection.count()
+    if count == 0:
         return []
 
     query_vector = _embedder.encode(query)
-
-    # Fetch extra results when filtering so we still return up to top_k after the filter
-    fetch_k = min(top_k * 3 if family else top_k, collection.count())
+    fetch_k = min(top_k * 3 if family else top_k, count)
 
     results = collection.query(
         query_embeddings=[query_vector],

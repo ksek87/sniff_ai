@@ -72,13 +72,17 @@ def feedback():
     if not isinstance(rating, int) or not (1 <= rating <= 5):
         return jsonify({"error": "rating must be an integer between 1 and 5"}), 400
 
-    save_feedback(
-        session_id=data["session_id"],
-        input_description=data["input_description"],
-        composition=data["composition"],
-        rating=rating,
-        comment=data.get("comment", ""),
-    )
+    try:
+        save_feedback(
+            session_id=data["session_id"],
+            input_description=data["input_description"],
+            composition=data["composition"],
+            rating=rating,
+            comment=data.get("comment", ""),
+        )
+    except Exception:
+        logger.exception("Feedback save failed for session=%r", data.get("session_id"))
+        return jsonify({"error": "Failed to save feedback. Please try again."}), 500
     return jsonify({"status": "ok"}), 201
 
 
@@ -90,7 +94,11 @@ def search():
         return jsonify({"error": "q parameter is required"}), 400
     if len(query) > _MAX_DESCRIPTION:
         return jsonify({"error": f"q must be {_MAX_DESCRIPTION} characters or fewer"}), 400
-    results = search_fragrance_db(query, top_k=10)
+    try:
+        results = search_fragrance_db(query, top_k=10)
+    except Exception:
+        logger.exception("Search failed for query=%r", query)
+        return jsonify({"error": "Search failed. Please try again."}), 500
     return jsonify(results)
 
 

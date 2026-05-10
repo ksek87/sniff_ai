@@ -44,12 +44,12 @@ def serve_react(path):
         return send_from_directory(_FRONTEND_BUILD, "index.html")
 
 
-# Warm up ChromaDB at worker startup so the first real request doesn't pay
-# the 10–30 s HNSWLIB index-load cost. In tests, _get_collection is mocked
-# so this is a no-op.
+# Warm up ChromaDB at worker startup — calling query() forces HNSWLIB to load
+# its vector index so the first real request doesn't pay the 10–30 s cold-start
+# cost. In tests, _get_collection is mocked so this call is a no-op.
 try:
-    from services.tools.search_tool import _get_collection as _warmup_chroma
-    _warmup_chroma()
+    from services.tools.search_tool import search_fragrance_db as _warmup_chroma
+    _warmup_chroma("warmup")
 except Exception:
     pass
 

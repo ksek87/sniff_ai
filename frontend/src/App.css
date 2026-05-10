@@ -27,18 +27,21 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 40px 20px 80px;
+  padding: 48px 20px 80px;
 }
 
 .github-link {
   position: fixed;
-  top: 18px;
-  right: 20px;
+  top: 16px;
+  right: 16px;
   color: var(--color-muted);
   display: flex;
   align-items: center;
   transition: color 0.2s;
   z-index: 10;
+  background: var(--color-bg);
+  border-radius: 50%;
+  padding: 4px;
 }
 
 .github-link:hover {
@@ -49,24 +52,26 @@ body {
   width: 22px;
   height: 22px;
   fill: currentColor;
+  display: block;
 }
 
 .app-header {
   text-align: center;
   margin-bottom: 40px;
+  padding: 0 40px;
 }
 
 .app-header h1 {
-  font-size: 2.4rem;
+  font-size: 2.6rem;
   color: var(--color-primary);
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   letter-spacing: 0.04em;
 }
 
 .app-tagline {
   color: var(--color-primary);
   font-style: italic;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-size: 1.15rem;
   letter-spacing: 0.02em;
 }
@@ -110,7 +115,7 @@ body {
 
 .generate-btn {
   align-self: flex-end;
-  padding: 12px 28px;
+  padding: 13px 28px;
   background: var(--color-primary);
   color: white;
   border: none;
@@ -119,6 +124,7 @@ body {
   font-size: 1rem;
   cursor: pointer;
   transition: background 0.2s;
+  min-height: 48px;
 }
 
 .generate-btn:hover:not(:disabled) {
@@ -254,6 +260,7 @@ body {
   letter-spacing: 0.08em;
   color: var(--color-muted);
   padding-top: 4px;
+  flex-shrink: 0;
 }
 
 .tier-notes {
@@ -337,13 +344,6 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Responsive */
-@media (max-width: 520px) {
-  .app-header h1 { font-size: 1.8rem; }
-  .fragrance-name { font-size: 1.3rem; }
-  .fragrance-card { padding: 20px; }
-}
-
 /* ── Note Selector ──────────────────────────────────────────── */
 
 .note-selector {
@@ -363,7 +363,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 4px 10px;
+  padding: 6px 12px;
   background: var(--color-accent);
   color: white;
   border: none;
@@ -372,6 +372,7 @@ body {
   font-size: 0.82rem;
   cursor: pointer;
   transition: background 0.15s;
+  min-height: 36px;
 }
 
 .note-chip:hover {
@@ -380,14 +381,15 @@ body {
 
 .note-selector-filter {
   width: 100%;
-  padding: 9px 14px;
+  padding: 10px 14px;
   font-family: inherit;
-  font-size: 0.92rem;
+  font-size: 1rem;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius);
   background: var(--color-surface);
   color: var(--color-text);
   transition: border-color 0.2s;
+  min-height: 44px;
 }
 
 .note-selector-filter:focus {
@@ -407,7 +409,7 @@ body {
 }
 
 .note-option {
-  padding: 4px 12px;
+  padding: 6px 14px;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   border-radius: 20px;
@@ -415,6 +417,7 @@ body {
   font-size: 0.82rem;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
+  min-height: 36px;
 }
 
 .note-option:hover:not(:disabled) {
@@ -461,12 +464,17 @@ body {
 .star-btn {
   background: none;
   border: none;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   line-height: 1;
   cursor: pointer;
   color: var(--color-border);
-  padding: 0 2px;
+  padding: 4px;
   transition: color 0.12s, transform 0.1s;
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .star-btn:hover,
@@ -509,7 +517,7 @@ body {
 
 .feedback-submit-btn {
   align-self: flex-end;
-  padding: 8px 20px;
+  padding: 10px 24px;
   background: var(--color-primary);
   color: white;
   border: none;
@@ -518,6 +526,7 @@ body {
   font-size: 0.92rem;
   cursor: pointer;
   transition: background 0.2s;
+  min-height: 44px;
 }
 
 .feedback-submit-btn:hover {
@@ -623,11 +632,6 @@ body {
   flex-shrink: 0;
 }
 
-@media (max-width: 520px) {
-  .search-controls { flex-direction: column; }
-  .result-score { margin-left: 0; }
-}
-
 /* ── Share ──────────────────────────────────────────────────── */
 
 .share-container {
@@ -639,7 +643,7 @@ body {
 
 .share-btn {
   align-self: flex-start;
-  padding: 9px 20px;
+  padding: 10px 22px;
   background: transparent;
   color: var(--color-primary);
   border: 1.5px solid var(--color-primary);
@@ -648,6 +652,7 @@ body {
   font-size: 0.92rem;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
+  min-height: 44px;
 }
 
 .share-btn:hover:not(:disabled) {
@@ -691,7 +696,7 @@ body {
 }
 
 .shared-banner-btn {
-  padding: 7px 16px;
+  padding: 8px 18px;
   background: var(--color-primary);
   color: white;
   border: none;
@@ -701,8 +706,124 @@ body {
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.2s;
+  min-height: 44px;
 }
 
 .shared-banner-btn:hover {
   background: var(--color-accent);
+}
+
+/* ── Mobile ─────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .app {
+    padding: 24px 16px 60px;
+  }
+
+  .app-header {
+    margin-bottom: 28px;
+    padding: 0 32px;
+  }
+
+  .app-header h1 {
+    font-size: 2rem;
+  }
+
+  .app-tagline {
+    font-size: 1.05rem;
+  }
+
+  .app-subtitle {
+    font-size: 0.88rem;
+  }
+
+  .description-input {
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+
+  .generate-btn {
+    align-self: stretch;
+    width: 100%;
+    font-size: 1rem;
+  }
+
+  .fragrance-card {
+    padding: 18px 16px;
+  }
+
+  .card-header {
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .fragrance-name {
+    font-size: 1.4rem;
+  }
+
+  .tier-label {
+    min-width: 44px;
+    font-size: 0.7rem;
+  }
+
+  .note-pill {
+    font-size: 0.82rem;
+    padding: 4px 10px;
+  }
+
+  .poetic-description {
+    padding: 6px 12px;
+    font-size: 0.95rem;
+  }
+
+  .share-btn {
+    align-self: stretch;
+    width: 100%;
+    text-align: center;
+  }
+
+  .feedback-submit-btn {
+    align-self: stretch;
+    width: 100%;
+  }
+
+  .feedback-widget {
+    padding: 14px 16px;
+  }
+
+  .shared-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .shared-banner-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .search-controls {
+    flex-direction: column;
+  }
+
+  .result-score {
+    margin-left: 0;
+  }
+
+  .app-divider {
+    margin: 32px 0 24px;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .fragrance-name {
+    font-size: 1.25rem;
+  }
+
+  .star-btn {
+    font-size: 1.6rem;
+    min-width: 38px;
+  }
 }

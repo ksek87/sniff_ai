@@ -30,6 +30,27 @@ body {
   padding: 40px 20px 80px;
 }
 
+.github-link {
+  position: fixed;
+  top: 18px;
+  right: 20px;
+  color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  z-index: 10;
+}
+
+.github-link:hover {
+  color: var(--color-primary);
+}
+
+.github-link svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
 .app-header {
   text-align: center;
   margin-bottom: 40px;

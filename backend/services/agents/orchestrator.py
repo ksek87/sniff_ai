@@ -15,6 +15,8 @@ except ImportError:
             return func
         return decorator
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from services.agents._client import _MODEL, get_client
 
 from services.tools.search_tool import search_fragrance_db
@@ -226,17 +228,14 @@ def run(context: dict) -> dict:
         if response.stop_reason != "tool_use":
             break
 
-        tool_results = []
-        for block in response.content:
-            if block.type == "tool_use":
-                result = _dispatch_tool(block.name, block.input)
-                tool_results.append(
-                    {
-                        "type": "tool_result",
-                        "tool_use_id": block.id,
-                        "content": json.dumps(result),
-                    }
-                )
+        tool_blocks = [b for b in response.content if b.type == "tool_use"]
+        with ThreadPoolExecutor(max_workers=len(tool_blocks)) as pool:
+            futs = {pool.submit(_dispatch_tool, b.name, b.input): b for b in tool_blocks}
+            results_by_id = {futs[f].id: f.result() for f in as_completed(futs)}
+        tool_results = [
+            {"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(results_by_id[b.id])}
+            for b in tool_blocks
+        ]
         messages.append({"role": "user", "content": tool_results})
 
     return {"reasoning": "Orchestration did not complete.", "reference_fragrances": [], "recommended_notes": {}}

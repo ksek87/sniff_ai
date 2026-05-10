@@ -4,11 +4,9 @@ conftest.py — session-level stubs and shared fixtures.
 sentence_transformers is stubbed in sys.modules at the very top so the
 Embedder singleton never tries to download or load model weights.
 
-The `from app import app` call is inside the patch context because
-services/nlp/__init__.py instantiates NoteExtractor, Embedder, and
-ScentClassifier at module level. Those __init__ methods touch the filesystem
-and model weights, so the patches must be active before the first import.
-TODO: move to an application factory (create_app()) to eliminate this coupling.
+With lazy NLP initialization (services/nlp/__init__.py), the app import no
+longer triggers model loading at import time, so it is safe to import here at
+module level rather than inside each fixture's patch context.
 """
 import sys
 
@@ -17,7 +15,7 @@ from unittest.mock import MagicMock
 
 # ── Stub sentence_transformers before any app code can import it ──────────
 _st_model = MagicMock()
-_st_model.encode.return_value = np.zeros(384, dtype=np.float32)  # has .tolist()
+_st_model.encode.return_value = np.zeros(384, dtype=np.float32)
 _st_module = MagicMock()
 _st_module.SentenceTransformer.return_value = _st_model
 sys.modules.setdefault("sentence_transformers", _st_module)
@@ -25,6 +23,9 @@ sys.modules.setdefault("sentence_transformers", _st_module)
 
 import pytest
 from unittest.mock import patch
+
+from app import app as flask_app
+from limiter import limiter as _limiter
 
 
 MOCK_COMPOSITION = {
@@ -65,7 +66,7 @@ def client():
         patch("services.nlp.note_extractor.NoteExtractor._build_ruler"),
         patch("services.nlp.scent_classifier.ScentClassifier._load_or_train"),
         patch("services.agents._client.anthropic"),
-        patch("services.tools.search_tool._get_collection") as mock_coll,  # used by orchestrator internally
+        patch("services.tools.search_tool._get_collection") as mock_coll,
         patch("services.generate_fragrance.orchestrator.run") as mock_orch,
         patch("services.generate_fragrance.composer.run") as mock_comp,
         patch("services.feedback.save_feedback"),
@@ -100,12 +101,13 @@ def client():
             "rating_distribution": {"1": 0, "2": 0, "3": 1, "4": 2, "5": 2},
         }
 
-        from app import app
-        from limiter import limiter as _limiter
-        app.config["TESTING"] = True
-        # Flask-Limiter 4.x caches self.enabled at init_app time, so we must
-        # set the attribute directly to disable rate limiting in tests.
+        # Also reset NLP singletons so each fixture gets a fresh lazy instance
+        import services.nlp as _nlp
+        _nlp._note_extractor = None
+        _nlp._classifier = None
+
+        flask_app.config["TESTING"] = True
         _limiter.enabled = False
-        with app.test_client() as c:
+        with flask_app.test_client() as c:
             yield c
         _limiter.enabled = True

@@ -1,4 +1,4 @@
-workers = 2
+workers = 4
 bind = "0.0.0.0:7860"
 timeout = 300
 accesslog = "-"
@@ -7,8 +7,13 @@ loglevel = "info"
 
 
 def post_worker_init(worker):
-    """Load the ChromaDB HNSWLIB index after each worker forks so the first
-    real request doesn't pay the 10-30s cold-start cost."""
+    """Pre-load all expensive resources after each worker forks so the first
+    real request pays no cold-start cost."""
+    try:
+        from services.nlp import preprocess
+        preprocess("warmup")
+    except Exception:
+        pass
     try:
         from services.tools.search_tool import search_fragrance_db
         search_fragrance_db("warmup")

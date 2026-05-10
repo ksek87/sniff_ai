@@ -1,6 +1,7 @@
 from __future__ import annotations
 import logging
 import time
+from concurrent.futures import ThreadPoolExecutor
 
 from services.nlp import preprocess
 from services.tools.search_tool import search_fragrance_db
@@ -15,23 +16,22 @@ def generate_fragrance_from_description(
     description: str,
     pinned_notes: list | None = None,
 ) -> dict:
-    context = preprocess(description)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        preprocess_f = pool.submit(preprocess, description)
+        search_f = pool.submit(search_fragrance_db, description, 10)
+        context = preprocess_f.result()
+        context["initial_hits"] = search_f.result()
     context["pinned_notes"] = pinned_notes or []
-
-    # Seed the orchestrator with a broad semantic search upfront so it can
-    # skip its own initial search call and go straight to profiling notes.
-    context["initial_hits"] = search_fragrance_db(query=description, top_k=10)
 
     last_exc: Exception | None = None
     for attempt in range(_MAX_RETRIES + 1):
         if attempt:
-            wait = 2 ** (attempt - 1)  # 1s, 2s
+            wait = 2 ** (attempt - 1)  # 1 s, 2 s
             logger.warning("Generation attempt %d failed, retrying in %ds", attempt, wait)
             time.sleep(wait)
         try:
             orchestrator_result = orchestrator.run(context)
-            composition = composer.run(description, orchestrator_result)
-            return composition
+            return composer.run(description, orchestrator_result)
         except Exception as exc:
             last_exc = exc
 

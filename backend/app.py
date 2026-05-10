@@ -44,6 +44,16 @@ def serve_react(path):
         return send_from_directory(_FRONTEND_BUILD, "index.html")
 
 
+# Warm up ChromaDB at worker startup so the first real request doesn't pay
+# the 10–30 s HNSWLIB index-load cost. In tests, _get_collection is mocked
+# so this is a no-op.
+try:
+    from services.tools.search_tool import _get_collection as _warmup_chroma
+    _warmup_chroma()
+except Exception:
+    pass
+
+
 if __name__ == "__main__":
     # Dev-only path — production uses gunicorn via start.sh.
     # Bind to loopback only; never expose the dev server to all interfaces.

@@ -9,16 +9,18 @@ _COLLECTION_NAME = "fragrances"
 
 _embedder = Embedder()
 
-# Initialise eagerly so the HNSWLIB index is loaded before the first request
-# rather than paying the 10–30 s cold-start cost during a live generation.
-_chroma_client = chromadb.PersistentClient(path=_CHROMA_DIR)
-_collection = _chroma_client.get_or_create_collection(
-    name=_COLLECTION_NAME,
-    metadata={"hnsw:space": "cosine"},
-)
+_client: chromadb.PersistentClient | None = None
+_collection = None
 
 
 def _get_collection():
+    global _client, _collection
+    if _collection is None:
+        _client = chromadb.PersistentClient(path=_CHROMA_DIR)
+        _collection = _client.get_or_create_collection(
+            name=_COLLECTION_NAME,
+            metadata={"hnsw:space": "cosine"},
+        )
     return _collection
 
 

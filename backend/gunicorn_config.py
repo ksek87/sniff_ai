@@ -1,5 +1,7 @@
+import os
+
 workers = 4
-bind = "0.0.0.0:7860"
+bind = f"0.0.0.0:{os.environ.get('PORT', '7860')}"
 timeout = 300
 accesslog = "-"
 errorlog = "-"

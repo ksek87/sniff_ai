@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import GenerationProgress from './GenerationProgress';
 
 interface Props {
   onGenerate: (description: string) => void;
@@ -32,8 +33,9 @@ const DescriptionInput: React.FC<Props> = ({ onGenerate, loading, additionalCont
         className="generate-btn"
         disabled={loading || !description.trim()}
       >
-        {loading ? 'Creating fragrance…' : 'Create Fragrance'}
+        {loading ? 'Creating…' : 'Create Fragrance'}
       </button>
+      {loading && <GenerationProgress />}
     </form>
   );
 };

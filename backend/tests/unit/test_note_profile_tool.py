@@ -35,9 +35,9 @@ def test_title_case_fallback(patched_profiles):
 def test_multiple_notes(patched_profiles):
     from services.tools.note_profile_tool import get_note_profile
     result = get_note_profile(["Bergamot", "Rose", "Musk"])
-    assert len(result) == 3
     assert result["Rose"]["volatility"] == "middle"
     assert result["Musk"]["volatility"] == "base"
+    assert "shared_pairings" in result  # merged pairings included for multi-note calls
 
 
 def test_unknown_note_returns_middle_default(patched_profiles):
@@ -59,6 +59,37 @@ def test_empty_profiles_falls_back_gracefully():
 def test_empty_note_list(patched_profiles):
     from services.tools.note_profile_tool import get_note_profile
     assert get_note_profile([]) == {}
+
+
+# ── shared_pairings ───────────────────────────────────────────────────────────
+
+def test_shared_pairings_is_intersection(patched_profiles):
+    """get_note_profile with multiple notes includes shared_pairings = intersection."""
+    from services.tools.note_profile_tool import get_note_profile
+    # Bergamot: ["Lemon", "Cedar"], Rose: ["Jasmine", "Cedar"] → intersection = ["Cedar"]
+    result = get_note_profile(["Bergamot", "Rose"])
+    assert result["shared_pairings"] == ["Cedar"]
+
+
+def test_shared_pairings_excludes_input_notes(patched_profiles):
+    from services.tools.note_profile_tool import get_note_profile
+    result = get_note_profile(["Bergamot", "Rose"])
+    assert "Bergamot" not in result["shared_pairings"]
+    assert "Rose" not in result["shared_pairings"]
+
+
+def test_shared_pairings_empty_when_no_common(patched_profiles):
+    """No common pairings → shared_pairings is an empty list."""
+    from services.tools.note_profile_tool import get_note_profile
+    # Bergamot pairs with Lemon/Cedar, Musk pairs with Amber — no overlap
+    result = get_note_profile(["Bergamot", "Musk"])
+    assert result["shared_pairings"] == []
+
+
+def test_single_note_has_no_shared_pairings(patched_profiles):
+    from services.tools.note_profile_tool import get_note_profile
+    result = get_note_profile(["Bergamot"])
+    assert "shared_pairings" not in result
 
 
 # ── found field ───────────────────────────────────────────────────────────────

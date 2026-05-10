@@ -26,29 +26,33 @@ def test_model_from_env():
 
 
 def test_get_client_uses_api_key_and_timeout():
-    """get_client() passes ANTHROPIC_API_KEY and the 60-second timeout."""
+    """get_client() passes ANTHROPIC_API_KEY and the configured timeout."""
+    import importlib
+    import services.agents._client as mod
+    importlib.reload(mod)  # reset singleton so Anthropic() is called fresh
     with patch("services.agents._client.anthropic") as mock_anthropic:
         mock_anthropic.Anthropic.return_value = MagicMock()
         with patch.dict(os.environ, {"ANTHROPIC_API_KEY": "test-key"}):
-            from services.agents._client import get_client, _TIMEOUT
-            get_client()
+            mod.get_client()
             mock_anthropic.Anthropic.assert_called_once_with(
                 api_key="test-key",
-                timeout=_TIMEOUT,
+                timeout=mod._TIMEOUT,
             )
 
 
-def test_get_client_timeout_is_60():
-    """Timeout constant is exactly 60 seconds."""
+def test_get_client_timeout_is_120():
+    """Timeout constant is 120 seconds to give orchestrator multi-round headroom."""
     from services.agents._client import _TIMEOUT
-    assert _TIMEOUT == 60.0
+    assert _TIMEOUT == 120.0
 
 
 def test_get_client_returns_anthropic_instance():
     """get_client() returns whatever anthropic.Anthropic() produces."""
+    import importlib
+    import services.agents._client as mod
+    importlib.reload(mod)  # reset singleton
     sentinel = MagicMock()
     with patch("services.agents._client.anthropic") as mock_anthropic:
         mock_anthropic.Anthropic.return_value = sentinel
-        from services.agents._client import get_client
-        result = get_client()
+        result = mod.get_client()
         assert result is sentinel

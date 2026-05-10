@@ -1,0 +1,872 @@
+{
+  "Bergamot": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "fresh", "green", "floral", "light"],
+    "pairs_well_with": ["Neroli", "Rose", "Vetiver", "Jasmine", "Lavender", "Sandalwood", "Oakmoss", "Black Pepper", "Petitgrain"]
+  },
+  "Lemon": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "sharp", "fresh", "zesty", "clean"],
+    "pairs_well_with": ["Lavender", "Verbena", "Rose", "Neroli", "Basil", "Ginger", "Cedarwood", "Petitgrain"]
+  },
+  "Lime": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "tart", "fresh", "zesty", "green"],
+    "pairs_well_with": ["Coconut", "Ginger", "Verbena", "Basil", "Mint", "Musk", "Bergamot", "Cedarwood"]
+  },
+  "Orange": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "sweet", "warm", "fresh", "juicy"],
+    "pairs_well_with": ["Cinnamon", "Clove", "Jasmine", "Rose", "Vanilla", "Sandalwood", "Neroli", "Petitgrain"]
+  },
+  "Grapefruit": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "bitter", "fresh", "clean", "bright"],
+    "pairs_well_with": ["Mint", "Musk", "Rose", "Iris", "Cedarwood", "White Tea", "Vetiver", "Bergamot"]
+  },
+  "Mandarin": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "sweet", "soft", "fresh", "fruity"],
+    "pairs_well_with": ["Vanilla", "Jasmine", "Neroli", "Sandalwood", "Rose", "Ylang-Ylang"]
+  },
+  "Blood Orange": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "sweet", "berry-like", "vibrant", "warm"],
+    "pairs_well_with": ["Jasmine", "Patchouli", "Musk", "Vanilla", "Bergamot", "Rose"]
+  },
+  "Tangerine": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "sweet", "bright", "fruity", "fresh"],
+    "pairs_well_with": ["Vanilla", "Musk", "Jasmine", "Sandalwood", "Ylang-Ylang"]
+  },
+  "Yuzu": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "tart", "floral", "green", "Japanese"],
+    "pairs_well_with": ["Cedarwood", "Sandalwood", "Musk", "Ginger", "Iris", "Hinoki Wood"]
+  },
+  "Petitgrain": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["woody", "fresh", "green", "citrusy", "dry"],
+    "pairs_well_with": ["Bergamot", "Neroli", "Lavender", "Geranium", "Cedarwood", "Orange Blossom"]
+  },
+  "Neroli": {
+    "volatility": "top", "family": "Floral",
+    "descriptors": ["floral", "citrusy", "sweet", "honey-like", "green"],
+    "pairs_well_with": ["Rose", "Jasmine", "Bergamot", "Sandalwood", "Musk", "Petitgrain", "Orange Blossom", "Ylang-Ylang"]
+  },
+  "Litsea Cubeba": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "lemony", "fresh", "light", "clean"],
+    "pairs_well_with": ["Bergamot", "Lavender", "Geranium", "Cedarwood", "Neroli"]
+  },
+  "Verbena": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["citrusy", "green", "herbal", "fresh", "lemony"],
+    "pairs_well_with": ["Lemon", "Lime", "Bergamot", "Mint", "Rosemary", "Cedarwood"]
+  },
+  "Basil": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["herbal", "green", "spicy", "fresh", "anisic"],
+    "pairs_well_with": ["Lime", "Lavender", "Ginger", "Bergamot", "Black Pepper", "Rosemary"]
+  },
+  "Mint": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["cool", "fresh", "mentholic", "clean", "herbal"],
+    "pairs_well_with": ["Lavender", "Eucalyptus", "Basil", "Lime", "Cedarwood", "Rosemary"]
+  },
+  "Peppermint": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["cool", "minty", "fresh", "sharp", "clean"],
+    "pairs_well_with": ["Eucalyptus", "Lavender", "Rosemary", "Bergamot", "Mint"]
+  },
+  "Spearmint": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["minty", "sweet", "cool", "fresh", "herbal"],
+    "pairs_well_with": ["Lavender", "Lime", "Bergamot", "Mint", "Basil"]
+  },
+  "Eucalyptus": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["camphoraceous", "fresh", "medicinal", "cool", "clean"],
+    "pairs_well_with": ["Peppermint", "Lavender", "Rosemary", "Cedarwood", "Pine Needle"]
+  },
+  "Rosemary": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["herbal", "woody", "camphoraceous", "fresh", "clean"],
+    "pairs_well_with": ["Lavender", "Bergamot", "Cedarwood", "Eucalyptus", "Basil"]
+  },
+  "Thyme": {
+    "volatility": "top", "family": "Fougère",
+    "descriptors": ["herbal", "warm", "spicy", "fresh", "green"],
+    "pairs_well_with": ["Lavender", "Rosemary", "Bergamot", "Clary Sage", "Oakmoss"]
+  },
+  "Tarragon": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["anisic", "green", "herbal", "spicy", "fresh"],
+    "pairs_well_with": ["Galbanum", "Bergamot", "Lavender", "Rose"]
+  },
+  "Coriander": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["spicy", "woody", "citrusy", "green", "herbal"],
+    "pairs_well_with": ["Bergamot", "Lavender", "Cedarwood", "Sandalwood", "Rose"]
+  },
+  "Galbanum": {
+    "volatility": "top", "family": "Earthy/Mossy",
+    "descriptors": ["green", "bitter", "woody", "resinous", "sharp"],
+    "pairs_well_with": ["Oakmoss", "Rose", "Iris", "Jasmine", "Cedarwood", "Violet Leaf"]
+  },
+  "Violet Leaf": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["green", "watery", "cucumber-like", "fresh", "leafy"],
+    "pairs_well_with": ["Iris", "Rose", "Oakmoss", "Cedarwood", "Galbanum", "Violet"]
+  },
+  "Tomato Leaf": {
+    "volatility": "top", "family": "Earthy/Mossy",
+    "descriptors": ["green", "vegetal", "sharp", "earthy", "fresh"],
+    "pairs_well_with": ["Geranium", "Rose", "Cedarwood", "Violet Leaf", "Oakmoss"]
+  },
+  "Aldehydes": {
+    "volatility": "top", "family": "Floral",
+    "descriptors": ["soapy", "waxy", "clean", "metallic", "abstract"],
+    "pairs_well_with": ["Rose", "Jasmine", "Iris", "Musk", "Sandalwood", "Vetiver"]
+  },
+  "Camphor": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["camphoraceous", "cool", "medicinal", "clean", "sharp"],
+    "pairs_well_with": ["Lavender", "Eucalyptus", "Rosemary", "Cedarwood", "Peppermint"]
+  },
+  "Dihydromyrcenol": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fresh", "citrusy", "clean", "slightly woody", "lime-like"],
+    "pairs_well_with": ["Bergamot", "Lavender", "Musk", "Cedarwood", "Lemon"]
+  },
+  "Black Pepper": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["spicy", "sharp", "dry", "warm", "pungent"],
+    "pairs_well_with": ["Bergamot", "Geranium", "Sandalwood", "Vetiver", "Rose", "Lavender", "Oud"]
+  },
+  "Pink Pepper": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["spicy", "fresh", "fruity", "rosy", "slightly sweet"],
+    "pairs_well_with": ["Bergamot", "Rose", "Cedarwood", "Iris", "Musk", "Grapefruit"]
+  },
+  "Ginger": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["spicy", "warm", "zesty", "sharp", "fresh"],
+    "pairs_well_with": ["Cardamom", "Sandalwood", "Vanilla", "Rose", "Lime", "Bergamot", "Citrus"]
+  },
+  "Cardamom": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["spicy", "sweet", "aromatic", "warm", "camphoraceous"],
+    "pairs_well_with": ["Rose", "Sandalwood", "Vanilla", "Cedarwood", "Bergamot", "Oud", "Coffee"]
+  },
+  "Juniper Berry": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fresh", "woody", "piney", "slightly fruity", "clean"],
+    "pairs_well_with": ["Cedarwood", "Lavender", "Bergamot", "Grapefruit", "Cypress", "Vetiver"]
+  },
+  "Cassis": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fruity", "tart", "green", "catty", "fresh"],
+    "pairs_well_with": ["Rose", "Violet", "Bergamot", "Iris", "Musk", "Sandalwood"]
+  },
+  "Apple": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fruity", "fresh", "crisp", "sweet", "green"],
+    "pairs_well_with": ["Rose", "Chamomile", "Cedarwood", "Musk", "Sandalwood", "Cinnamon"]
+  },
+  "Pear": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fruity", "sweet", "light", "fresh", "watery"],
+    "pairs_well_with": ["Rose", "Musk", "Sandalwood", "Freesia", "Bergamot", "Vanilla"]
+  },
+  "Raspberry": {
+    "volatility": "top", "family": "Floral",
+    "descriptors": ["fruity", "sweet", "bright", "slightly tart", "berry"],
+    "pairs_well_with": ["Rose", "Musk", "Jasmine", "Violet", "Sandalwood", "Bergamot"]
+  },
+  "Blackberry": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fruity", "tart", "sweet", "slightly earthy", "berry"],
+    "pairs_well_with": ["Rose", "Violet", "Musk", "Sandalwood", "Vetiver", "Bergamot"]
+  },
+  "Strawberry": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fruity", "sweet", "fresh", "bright", "juicy"],
+    "pairs_well_with": ["Rose", "Jasmine", "Vanilla", "Musk", "Bergamot"]
+  },
+  "Lychee": {
+    "volatility": "top", "family": "Floral",
+    "descriptors": ["fruity", "floral", "sweet", "rose-like", "tropical"],
+    "pairs_well_with": ["Rose", "Jasmine", "Musk", "Sandalwood", "Bergamot", "Violet"]
+  },
+  "Melon": {
+    "volatility": "top", "family": "Aquatic/Marine",
+    "descriptors": ["fruity", "watery", "sweet", "fresh", "green"],
+    "pairs_well_with": ["Cucumber", "Musk", "Bergamot", "Calone", "Jasmine", "Lily of the Valley"]
+  },
+  "Cucumber": {
+    "volatility": "top", "family": "Aquatic/Marine",
+    "descriptors": ["watery", "fresh", "green", "cool", "clean"],
+    "pairs_well_with": ["Melon", "Violet", "Rose", "Musk", "Violet Leaf", "Bergamot"]
+  },
+  "Watermelon": {
+    "volatility": "top", "family": "Aquatic/Marine",
+    "descriptors": ["watery", "fresh", "sweet", "fruity", "light"],
+    "pairs_well_with": ["Cucumber", "Melon", "Musk", "Bergamot", "Mint", "Calone"]
+  },
+  "Passion Fruit": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fruity", "tropical", "tart", "sweet", "exotic"],
+    "pairs_well_with": ["Mango", "Bergamot", "Jasmine", "Musk", "Vanilla", "Coconut"]
+  },
+  "Mango": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fruity", "tropical", "sweet", "warm", "exotic"],
+    "pairs_well_with": ["Passion Fruit", "Coconut", "Jasmine", "Vanilla", "Bergamot"]
+  },
+  "Quince": {
+    "volatility": "top", "family": "Fresh/Citrus",
+    "descriptors": ["fruity", "floral", "slightly tart", "warm", "honey-like"],
+    "pairs_well_with": ["Rose", "Pear", "Sandalwood", "Vanilla", "Bergamot"]
+  },
+  "Calone": {
+    "volatility": "top", "family": "Aquatic/Marine",
+    "descriptors": ["marine", "watery", "fresh", "melon-like", "clean"],
+    "pairs_well_with": ["Musk", "Bergamot", "Rose", "Melon", "Violet Leaf", "Sandalwood"]
+  },
+  "Lavender": {
+    "volatility": "top", "family": "Fougère",
+    "descriptors": ["floral", "herbal", "fresh", "clean", "aromatic"],
+    "pairs_well_with": ["Bergamot", "Oakmoss", "Geranium", "Cedarwood", "Musk", "Coumarin", "Tonka Bean", "Rosemary", "Rose"]
+  },
+  "Lavandin": {
+    "volatility": "top", "family": "Fougère",
+    "descriptors": ["floral", "herbal", "camphoraceous", "fresh", "aromatic"],
+    "pairs_well_with": ["Bergamot", "Oakmoss", "Geranium", "Cedarwood", "Rosemary"]
+  },
+  "Cinnamon": {
+    "volatility": "middle", "family": "Oriental",
+    "descriptors": ["spicy", "warm", "sweet", "dry", "exotic"],
+    "pairs_well_with": ["Orange", "Vanilla", "Clove", "Sandalwood", "Rose", "Benzoin", "Cardamom"]
+  },
+  "Clove": {
+    "volatility": "middle", "family": "Oriental",
+    "descriptors": ["spicy", "warm", "sharp", "pungent", "eugenol"],
+    "pairs_well_with": ["Cinnamon", "Rose", "Carnation", "Sandalwood", "Vanilla", "Ylang-Ylang"]
+  },
+  "Nutmeg": {
+    "volatility": "middle", "family": "Oriental",
+    "descriptors": ["spicy", "warm", "woody", "sweet", "aromatic"],
+    "pairs_well_with": ["Sandalwood", "Rose", "Vanilla", "Tobacco", "Cedarwood", "Clove"]
+  },
+  "Saffron": {
+    "volatility": "middle", "family": "Oriental",
+    "descriptors": ["spicy", "metallic", "leathery", "honey-like", "exotic"],
+    "pairs_well_with": ["Rose", "Oud", "Amber", "Vanilla", "Sandalwood", "Jasmine", "Musk"]
+  },
+  "Star Anise": {
+    "volatility": "middle", "family": "Oriental",
+    "descriptors": ["anisic", "sweet", "warm", "spicy", "licorice-like"],
+    "pairs_well_with": ["Vanilla", "Rose", "Sandalwood", "Cinnamon", "Clove"]
+  },
+  "Cumin": {
+    "volatility": "middle", "family": "Oriental",
+    "descriptors": ["spicy", "warm", "earthy", "heavy", "exotic"],
+    "pairs_well_with": ["Coriander", "Rose", "Oud", "Sandalwood", "Amber"]
+  },
+  "Clary Sage": {
+    "volatility": "middle", "family": "Fougère",
+    "descriptors": ["herbal", "earthy", "warm", "slightly sweet", "green"],
+    "pairs_well_with": ["Lavender", "Geranium", "Oakmoss", "Bergamot", "Cedarwood", "Rose"]
+  },
+  "Sage": {
+    "volatility": "middle", "family": "Fougère",
+    "descriptors": ["herbal", "camphoraceous", "green", "earthy", "dry"],
+    "pairs_well_with": ["Lavender", "Oakmoss", "Bergamot", "Cedarwood", "Clary Sage"]
+  },
+  "Rose": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "rosy", "romantic", "sweet", "velvety"],
+    "pairs_well_with": ["Jasmine", "Sandalwood", "Patchouli", "Bergamot", "Geranium", "Musk", "Cedarwood", "Oud", "Vetiver"]
+  },
+  "Jasmine": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "sweet", "heady", "warm", "indolic"],
+    "pairs_well_with": ["Rose", "Sandalwood", "Bergamot", "Ylang-Ylang", "Neroli", "Musk", "Vanilla", "Tuberose"]
+  },
+  "Ylang-Ylang": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "sweet", "narcotic", "exotic", "rich"],
+    "pairs_well_with": ["Jasmine", "Rose", "Bergamot", "Sandalwood", "Vanilla", "Neroli", "Vetiver"]
+  },
+  "Tuberose": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "creamy", "heady", "rich", "narcotic"],
+    "pairs_well_with": ["Jasmine", "Rose", "Gardenia", "Vanilla", "Musk", "Sandalwood", "Ylang-Ylang"]
+  },
+  "Gardenia": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "creamy", "sweet", "tropical", "lush"],
+    "pairs_well_with": ["Tuberose", "Jasmine", "Coconut", "Vanilla", "Sandalwood", "Ylang-Ylang"]
+  },
+  "Lily of the Valley": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "fresh", "green", "delicate", "dewy"],
+    "pairs_well_with": ["Rose", "Iris", "Neroli", "Musk", "Sandalwood", "Freesia"]
+  },
+  "Magnolia": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "creamy", "fresh", "slightly fruity", "powdery"],
+    "pairs_well_with": ["Rose", "Bergamot", "Sandalwood", "Musk", "Peach", "Jasmine"]
+  },
+  "Peony": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "fresh", "rosy", "light", "clean"],
+    "pairs_well_with": ["Rose", "Musk", "Sandalwood", "White Tea", "Bergamot", "Freesia"]
+  },
+  "Iris": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "powdery", "violet-like", "woody", "carrot-like"],
+    "pairs_well_with": ["Violet", "Rose", "Sandalwood", "Vetiver", "Musk", "Cedarwood", "Orris Root"]
+  },
+  "Violet": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "powdery", "sweet", "delicate", "woody"],
+    "pairs_well_with": ["Iris", "Rose", "Musk", "Sandalwood", "Cassis", "Raspberry", "Heliotrope"]
+  },
+  "Heliotrope": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["floral", "powdery", "sweet", "almond-like", "vanilla-like"],
+    "pairs_well_with": ["Vanilla", "Rose", "Almond", "Musk", "Iris", "Tonka Bean"]
+  },
+  "Carnation": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "spicy", "clove-like", "warm", "sweet"],
+    "pairs_well_with": ["Clove", "Cinnamon", "Rose", "Sandalwood", "Vanilla", "Geranium"]
+  },
+  "Geranium": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "rosy", "green", "minty", "herbal"],
+    "pairs_well_with": ["Rose", "Lavender", "Bergamot", "Cedarwood", "Oakmoss", "Patchouli"]
+  },
+  "Mimosa": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "powdery", "sweet", "green", "slightly honey-like"],
+    "pairs_well_with": ["Violet", "Iris", "Rose", "Sandalwood", "Vanilla", "Jasmine"]
+  },
+  "Narcissus": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "green", "slightly animalic", "waxy", "heady"],
+    "pairs_well_with": ["Jasmine", "Rose", "Iris", "Violet", "Oakmoss", "Sandalwood"]
+  },
+  "Osmanthus": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "fruity", "apricot-like", "leathery", "sweet"],
+    "pairs_well_with": ["Apricot", "Peach", "Rose", "Sandalwood", "Green Tea", "Jasmine"]
+  },
+  "Orange Blossom": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "sweet", "honey-like", "citrusy", "fresh"],
+    "pairs_well_with": ["Neroli", "Jasmine", "Rose", "Bergamot", "Sandalwood", "Musk", "Petitgrain"]
+  },
+  "Freesia": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "fresh", "slightly citrusy", "clean", "dewy"],
+    "pairs_well_with": ["Rose", "Bergamot", "Musk", "Sandalwood", "Lily of the Valley", "Peony"]
+  },
+  "Cyclamen": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "fresh", "watery", "green", "clean"],
+    "pairs_well_with": ["Rose", "Musk", "Sandalwood", "Bergamot", "Lily of the Valley", "Iris"]
+  },
+  "Lily": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "fresh", "green", "sweet", "clean"],
+    "pairs_well_with": ["Rose", "Jasmine", "Sandalwood", "Musk", "Lily of the Valley"]
+  },
+  "Chamomile": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["herbal", "sweet", "fruity", "apple-like", "warm"],
+    "pairs_well_with": ["Lavender", "Apple", "Musk", "Vanilla", "Rose", "Bergamot"]
+  },
+  "Frangipani": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "tropical", "creamy", "sweet", "coconut-like"],
+    "pairs_well_with": ["Coconut", "Vanilla", "Jasmine", "Ylang-Ylang", "Sandalwood", "Tiare"]
+  },
+  "Honeysuckle": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "sweet", "honey-like", "light", "fresh"],
+    "pairs_well_with": ["Jasmine", "Rose", "Musk", "Sandalwood", "Peach", "Neroli"]
+  },
+  "Wisteria": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "sweet", "powdery", "slightly woody", "romantic"],
+    "pairs_well_with": ["Violet", "Rose", "Iris", "Sandalwood", "Musk", "Jasmine"]
+  },
+  "Tiare": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "tropical", "sweet", "coconut-like", "exotic"],
+    "pairs_well_with": ["Coconut", "Vanilla", "Jasmine", "Sandalwood", "Frangipani"]
+  },
+  "Immortelle": {
+    "volatility": "middle", "family": "Fougère",
+    "descriptors": ["warm", "honey-like", "curry-like", "straw", "slightly medicinal"],
+    "pairs_well_with": ["Lavender", "Vanilla", "Sandalwood", "Hay", "Tonka Bean", "Rose"]
+  },
+  "Orris Root": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["powdery", "violet-like", "earthy", "floral", "waxy"],
+    "pairs_well_with": ["Violet", "Iris", "Rose", "Sandalwood", "Musk", "Violet Leaf", "Cedarwood"]
+  },
+  "Angelica Root": {
+    "volatility": "middle", "family": "Earthy/Mossy",
+    "descriptors": ["earthy", "musk-like", "herbal", "slightly sweet", "root-like"],
+    "pairs_well_with": ["Galbanum", "Musk", "Cedarwood", "Sandalwood", "Vetiver"]
+  },
+  "Green Tea": {
+    "volatility": "middle", "family": "Fresh/Citrus",
+    "descriptors": ["fresh", "green", "slightly bitter", "clean", "light"],
+    "pairs_well_with": ["Bergamot", "Rose", "Jasmine", "Musk", "Lemon", "Peony"]
+  },
+  "White Tea": {
+    "volatility": "middle", "family": "Fresh/Citrus",
+    "descriptors": ["fresh", "clean", "slightly floral", "light", "delicate"],
+    "pairs_well_with": ["Bergamot", "Peony", "Musk", "Cedarwood", "Rose", "Grapefruit"]
+  },
+  "Hay": {
+    "volatility": "middle", "family": "Fougère",
+    "descriptors": ["warm", "sweet", "slightly earthy", "tobacco-like", "coumarinic"],
+    "pairs_well_with": ["Coumarin", "Lavender", "Tobacco", "Oakmoss", "Tonka Bean", "Sandalwood"]
+  },
+  "Mate": {
+    "volatility": "middle", "family": "Earthy/Mossy",
+    "descriptors": ["green", "smoky", "earthy", "slightly bitter", "tobacco-like"],
+    "pairs_well_with": ["Leather", "Tobacco", "Vetiver", "Cedarwood", "Smoke"]
+  },
+  "Peach": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["fruity", "sweet", "warm", "velvety", "slightly floral"],
+    "pairs_well_with": ["Rose", "Jasmine", "Sandalwood", "Osmanthus", "Magnolia", "Vanilla"]
+  },
+  "Apricot": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["fruity", "sweet", "warm", "slightly tangy", "juicy"],
+    "pairs_well_with": ["Osmanthus", "Rose", "Sandalwood", "Vanilla", "Jasmine", "Peach"]
+  },
+  "Plum": {
+    "volatility": "middle", "family": "Oriental",
+    "descriptors": ["fruity", "dark", "sweet", "slightly wine-like", "rich"],
+    "pairs_well_with": ["Rose", "Sandalwood", "Amber", "Vanilla", "Oud", "Musk"]
+  },
+  "Cherry": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["fruity", "sweet", "warm", "slightly almond-like", "rich"],
+    "pairs_well_with": ["Rose", "Almond", "Vanilla", "Sandalwood", "Tonka Bean"]
+  },
+  "Fig": {
+    "volatility": "middle", "family": "Earthy/Mossy",
+    "descriptors": ["green", "woody", "slightly milky", "earthy", "fresh"],
+    "pairs_well_with": ["Cedarwood", "Sandalwood", "Musk", "Oakmoss", "Vetiver", "Iris"]
+  },
+  "Mushroom": {
+    "volatility": "middle", "family": "Earthy/Mossy",
+    "descriptors": ["earthy", "damp", "umami", "forest", "slightly sweet"],
+    "pairs_well_with": ["Earth", "Vetiver", "Cedarwood", "Truffle", "Oakmoss"]
+  },
+  "Truffle": {
+    "volatility": "middle", "family": "Earthy/Mossy",
+    "descriptors": ["earthy", "musky", "rich", "luxurious", "deep"],
+    "pairs_well_with": ["Mushroom", "Vetiver", "Patchouli", "Cedarwood", "Sandalwood"]
+  },
+  "Coffee": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["roasted", "warm", "slightly bitter", "rich", "earthy"],
+    "pairs_well_with": ["Vanilla", "Chocolate", "Amber", "Sandalwood", "Tobacco", "Cardamom"]
+  },
+  "Chocolate": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["sweet", "dark", "warm", "rich", "indulgent"],
+    "pairs_well_with": ["Coffee", "Vanilla", "Rose", "Sandalwood", "Amber", "Patchouli"]
+  },
+  "Almond": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["sweet", "nutty", "marzipan-like", "warm", "powdery"],
+    "pairs_well_with": ["Vanilla", "Heliotrope", "Tonka Bean", "Rose", "Cherry", "Benzoin"]
+  },
+  "Honey": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["sweet", "warm", "slightly waxy", "animalic", "rich"],
+    "pairs_well_with": ["Beeswax", "Rose", "Jasmine", "Vanilla", "Sandalwood", "Saffron"]
+  },
+  "Beeswax": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["waxy", "warm", "sweet", "slightly floral", "natural"],
+    "pairs_well_with": ["Honey", "Rose", "Jasmine", "Iris", "Sandalwood", "Vanilla"]
+  },
+  "Coconut": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["tropical", "creamy", "sweet", "warm", "milky"],
+    "pairs_well_with": ["Vanilla", "Jasmine", "Gardenia", "Sandalwood", "Frangipani", "Tiare"]
+  },
+  "Maple": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["sweet", "woody", "warm", "slightly smoky", "caramel-like"],
+    "pairs_well_with": ["Vanilla", "Sandalwood", "Caramel", "Tonka Bean", "Cedarwood"]
+  },
+  "Rum": {
+    "volatility": "middle", "family": "Gourmand",
+    "descriptors": ["sweet", "warm", "woody", "slightly spicy", "tropical"],
+    "pairs_well_with": ["Vanilla", "Tobacco", "Sandalwood", "Caramel", "Coconut"]
+  },
+  "Linalool": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["floral", "lavender-like", "fresh", "slightly woody", "clean"],
+    "pairs_well_with": ["Lavender", "Bergamot", "Rose", "Jasmine", "Cedarwood", "Geranium"]
+  },
+  "Geraniol": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["rosy", "floral", "sweet", "slightly citrusy", "clean"],
+    "pairs_well_with": ["Rose", "Geranium", "Bergamot", "Sandalwood", "Citronellol"]
+  },
+  "Citronellol": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["rosy", "fresh", "clean", "slightly green", "light"],
+    "pairs_well_with": ["Rose", "Geranium", "Musk", "Sandalwood", "Geraniol"]
+  },
+  "Eugenol": {
+    "volatility": "middle", "family": "Oriental",
+    "descriptors": ["spicy", "clove-like", "warm", "woody", "slightly sweet"],
+    "pairs_well_with": ["Clove", "Carnation", "Cinnamon", "Rose", "Vanilla", "Sandalwood"]
+  },
+  "Indole": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["animalic", "floral", "jasmine-like", "narcotic", "deep"],
+    "pairs_well_with": ["Jasmine", "Tuberose", "Narcissus", "Rose", "Ylang-Ylang", "Sandalwood"]
+  },
+  "Hedione": {
+    "volatility": "middle", "family": "Floral",
+    "descriptors": ["jasmine-like", "fresh", "transparent", "diffusive", "light"],
+    "pairs_well_with": ["Jasmine", "Rose", "Musk", "Sandalwood", "Bergamot", "Neroli"]
+  },
+  "Cypress": {
+    "volatility": "middle", "family": "Woody",
+    "descriptors": ["woody", "fresh", "resinous", "green", "dry"],
+    "pairs_well_with": ["Juniper Berry", "Pine Needle", "Cedarwood", "Lavender", "Oakmoss", "Vetiver"]
+  },
+  "Pine Needle": {
+    "volatility": "middle", "family": "Fresh/Citrus",
+    "descriptors": ["fresh", "resinous", "green", "woody", "clean"],
+    "pairs_well_with": ["Cedarwood", "Cypress", "Juniper Berry", "Lavender", "Bergamot", "Fir Balsam"]
+  },
+  "Bamboo": {
+    "volatility": "middle", "family": "Fresh/Citrus",
+    "descriptors": ["fresh", "green", "woody", "clean", "light"],
+    "pairs_well_with": ["Sandalwood", "Musk", "Green Tea", "Vetiver", "White Tea", "Bergamot"]
+  },
+  "Sea Salt": {
+    "volatility": "middle", "family": "Aquatic/Marine",
+    "descriptors": ["marine", "salty", "clean", "fresh", "mineral"],
+    "pairs_well_with": ["Bergamot", "Driftwood", "Musk", "Ambergris", "Cedarwood", "Vetiver"]
+  },
+  "Water Hyacinth": {
+    "volatility": "middle", "family": "Aquatic/Marine",
+    "descriptors": ["floral", "watery", "fresh", "green", "clean"],
+    "pairs_well_with": ["Musk", "Bergamot", "Rose", "Calone", "Violet Leaf"]
+  },
+  "Seaweed": {
+    "volatility": "middle", "family": "Aquatic/Marine",
+    "descriptors": ["marine", "salty", "green", "fresh", "ozonic"],
+    "pairs_well_with": ["Sea Salt", "Calone", "Bergamot", "Musk", "Ambergris"]
+  },
+  "Water Lily": {
+    "volatility": "middle", "family": "Aquatic/Marine",
+    "descriptors": ["floral", "watery", "fresh", "clean", "aquatic"],
+    "pairs_well_with": ["Lotus", "Musk", "Bergamot", "Sandalwood", "Sea Salt"]
+  },
+  "Lotus": {
+    "volatility": "middle", "family": "Aquatic/Marine",
+    "descriptors": ["floral", "aquatic", "slightly sweet", "clean", "fresh"],
+    "pairs_well_with": ["Water Lily", "Musk", "Sandalwood", "Bergamot", "Jasmine"]
+  },
+  "Nagarmotha": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["earthy", "woody", "smoky", "patchouli-like", "dry"],
+    "pairs_well_with": ["Patchouli", "Vetiver", "Cedarwood", "Sandalwood", "Oud"]
+  },
+  "Cedarwood": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "dry", "pencil-shavings", "warm", "clean"],
+    "pairs_well_with": ["Bergamot", "Lavender", "Rose", "Jasmine", "Sandalwood", "Vetiver", "Iris", "Musk"]
+  },
+  "Atlas Cedar": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "warm", "sweet", "ambery", "dry"],
+    "pairs_well_with": ["Bergamot", "Lavender", "Rose", "Sandalwood", "Amber", "Musk", "Vetiver"]
+  },
+  "Sandalwood": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "creamy", "warm", "smooth", "milky"],
+    "pairs_well_with": ["Rose", "Jasmine", "Ylang-Ylang", "Bergamot", "Musk", "Vanilla", "Patchouli", "Vetiver"]
+  },
+  "Patchouli": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["earthy", "musky", "slightly sweet", "dark", "damp"],
+    "pairs_well_with": ["Rose", "Vanilla", "Bergamot", "Sandalwood", "Vetiver", "Jasmine", "Oakmoss"]
+  },
+  "Oud": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "smoky", "animalic", "dark", "resinous"],
+    "pairs_well_with": ["Rose", "Saffron", "Amber", "Sandalwood", "Jasmine", "Vanilla", "Bergamot", "Musk"]
+  },
+  "Guaiac Wood": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "smoky", "slightly floral", "warm", "rosy"],
+    "pairs_well_with": ["Rose", "Vetiver", "Iris", "Musk", "Sandalwood", "Cedarwood"]
+  },
+  "Rosewood": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "rosy", "sweet", "spicy", "warm"],
+    "pairs_well_with": ["Rose", "Sandalwood", "Musk", "Bergamot", "Geranium", "Patchouli"]
+  },
+  "Fir Balsam": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["resinous", "fresh", "piney", "balsamic", "warm"],
+    "pairs_well_with": ["Cedarwood", "Pine Needle", "Lavender", "Bergamot", "Frankincense", "Vetiver"]
+  },
+  "Hinoki Wood": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "fresh", "citrusy", "clean", "Japanese"],
+    "pairs_well_with": ["Cedarwood", "Cypress", "Sandalwood", "Musk", "Yuzu", "Iris"]
+  },
+  "Amyris": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "warm", "creamy", "sandalwood-like", "slightly smoky"],
+    "pairs_well_with": ["Sandalwood", "Vetiver", "Musk", "Rose", "Cedarwood"]
+  },
+  "Iso E Super": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "cedar-like", "velvety", "abstract", "diffusive"],
+    "pairs_well_with": ["Sandalwood", "Vetiver", "Cedarwood", "Rose", "Musk", "Patchouli"]
+  },
+  "Ambroxan": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["ambergris-like", "woody", "warm", "clean", "skin-like"],
+    "pairs_well_with": ["Sandalwood", "Musk", "Bergamot", "Rose", "Vetiver", "Cedarwood"]
+  },
+  "Norlimbanol": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["woody", "dry", "sandalwood-like", "deep", "smooth"],
+    "pairs_well_with": ["Sandalwood", "Cedarwood", "Vetiver", "Musk", "Ambroxan"]
+  },
+  "Cashmeran": {
+    "volatility": "base", "family": "Woody",
+    "descriptors": ["warm", "musky", "woody", "slightly spicy", "velvety"],
+    "pairs_well_with": ["Sandalwood", "Musk", "Vanilla", "Cedarwood", "Rose"]
+  },
+  "Vetiver": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["earthy", "smoky", "woody", "dry", "grassy"],
+    "pairs_well_with": ["Bergamot", "Sandalwood", "Rose", "Jasmine", "Oakmoss", "Patchouli", "Cedarwood"]
+  },
+  "Oakmoss": {
+    "volatility": "base", "family": "Chypre",
+    "descriptors": ["earthy", "mossy", "damp", "green", "woody"],
+    "pairs_well_with": ["Bergamot", "Lavender", "Coumarin", "Labdanum", "Cistus", "Vetiver", "Patchouli"]
+  },
+  "Treemoss": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["earthy", "mossy", "woody", "damp", "forest-like"],
+    "pairs_well_with": ["Oakmoss", "Vetiver", "Cedarwood", "Labdanum", "Bergamot"]
+  },
+  "Earth": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["earthy", "damp", "petrichor", "mineral", "forest-floor"],
+    "pairs_well_with": ["Vetiver", "Oakmoss", "Patchouli", "Mushroom", "Cedarwood"]
+  },
+  "Lichen": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["mossy", "earthy", "dry", "woody", "forest-like"],
+    "pairs_well_with": ["Oakmoss", "Vetiver", "Cedarwood", "Bergamot", "Treemoss"]
+  },
+  "Birch Tar": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["smoky", "tarry", "medicinal", "dry", "leathery"],
+    "pairs_well_with": ["Leather", "Smoke", "Vetiver", "Cedarwood", "Guaiac Wood"]
+  },
+  "Benzoin": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["sweet", "balsamic", "vanilla-like", "warm", "resinous"],
+    "pairs_well_with": ["Vanilla", "Sandalwood", "Rose", "Frankincense", "Tonka Bean", "Styrax", "Amber"]
+  },
+  "Frankincense": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["resinous", "woody", "slightly citrusy", "sacred", "warm"],
+    "pairs_well_with": ["Myrrh", "Sandalwood", "Bergamot", "Rose", "Labdanum", "Patchouli", "Benzoin"]
+  },
+  "Myrrh": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["resinous", "balsamic", "warm", "slightly smoky", "earthy"],
+    "pairs_well_with": ["Frankincense", "Sandalwood", "Rose", "Oud", "Benzoin", "Labdanum"]
+  },
+  "Opoponax": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["balsamic", "warm", "sweet", "slightly animalic", "resinous"],
+    "pairs_well_with": ["Myrrh", "Frankincense", "Benzoin", "Vanilla", "Rose", "Labdanum"]
+  },
+  "Labdanum": {
+    "volatility": "base", "family": "Chypre",
+    "descriptors": ["resinous", "balsamic", "ambery", "animalic", "warm"],
+    "pairs_well_with": ["Cistus", "Oakmoss", "Bergamot", "Sandalwood", "Amber", "Rose", "Patchouli"]
+  },
+  "Elemi": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["resinous", "spicy", "slightly citrusy", "fresh", "lemony"],
+    "pairs_well_with": ["Frankincense", "Myrrh", "Bergamot", "Sandalwood", "Patchouli"]
+  },
+  "Styrax": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["sweet", "balsamic", "leathery", "warm", "smoky"],
+    "pairs_well_with": ["Rose", "Benzoin", "Frankincense", "Oud", "Vanilla", "Amber"]
+  },
+  "Tolu Balsam": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["sweet", "balsamic", "warm", "vanilla-like", "powdery"],
+    "pairs_well_with": ["Vanilla", "Benzoin", "Rose", "Cinnamon", "Sandalwood", "Tonka Bean"]
+  },
+  "Peru Balsam": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["sweet", "balsamic", "vanilla-like", "cinnamon-like", "warm"],
+    "pairs_well_with": ["Vanilla", "Benzoin", "Cinnamon", "Rose", "Sandalwood", "Tonka Bean"]
+  },
+  "Amber": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["warm", "sweet", "resinous", "powdery", "golden"],
+    "pairs_well_with": ["Vanilla", "Musk", "Sandalwood", "Benzoin", "Rose", "Oud", "Saffron", "Patchouli"]
+  },
+  "Cistus": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["resinous", "warm", "honey-like", "animalic", "slightly smoky"],
+    "pairs_well_with": ["Labdanum", "Oakmoss", "Rose", "Sandalwood", "Bergamot", "Frankincense"]
+  },
+  "Copal": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["resinous", "fresh", "citrusy", "balsamic", "sacred"],
+    "pairs_well_with": ["Frankincense", "Sandalwood", "Rose", "Bergamot", "Myrrh"]
+  },
+  "Incense": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["smoky", "resinous", "warm", "sacred", "woody"],
+    "pairs_well_with": ["Frankincense", "Myrrh", "Sandalwood", "Rose", "Oud", "Cedarwood", "Patchouli"]
+  },
+  "Vanilla": {
+    "volatility": "base", "family": "Gourmand",
+    "descriptors": ["sweet", "warm", "creamy", "balsamic", "comforting"],
+    "pairs_well_with": ["Sandalwood", "Rose", "Jasmine", "Musk", "Benzoin", "Tonka Bean", "Amber", "Patchouli"]
+  },
+  "Tonka Bean": {
+    "volatility": "base", "family": "Gourmand",
+    "descriptors": ["sweet", "almond-like", "coumarinic", "warm", "vanilla-like"],
+    "pairs_well_with": ["Vanilla", "Coumarin", "Lavender", "Sandalwood", "Rose", "Musk", "Heliotrope"]
+  },
+  "Coumarin": {
+    "volatility": "base", "family": "Fougère",
+    "descriptors": ["sweet", "hay-like", "tobacco-like", "warm", "slightly medicinal"],
+    "pairs_well_with": ["Lavender", "Vanilla", "Oakmoss", "Tonka Bean", "Hay", "Rose", "Musk"]
+  },
+  "Caramel": {
+    "volatility": "base", "family": "Gourmand",
+    "descriptors": ["sweet", "burnt sugar", "warm", "rich", "buttery"],
+    "pairs_well_with": ["Vanilla", "Sandalwood", "Musk", "Benzoin", "Chocolate", "Coffee"]
+  },
+  "Praline": {
+    "volatility": "base", "family": "Gourmand",
+    "descriptors": ["sweet", "nutty", "caramel-like", "warm", "indulgent"],
+    "pairs_well_with": ["Vanilla", "Caramel", "Sandalwood", "Musk", "Chocolate", "Almond"]
+  },
+  "Musk": {
+    "volatility": "base", "family": "Floral",
+    "descriptors": ["animalic", "warm", "sensual", "powdery", "skin-like"],
+    "pairs_well_with": ["Rose", "Jasmine", "Sandalwood", "Vanilla", "Bergamot", "Amber", "Patchouli"]
+  },
+  "White Musk": {
+    "volatility": "base", "family": "Floral",
+    "descriptors": ["clean", "powdery", "fresh", "slightly floral", "skin-like"],
+    "pairs_well_with": ["Rose", "Bergamot", "Sandalwood", "Iris", "Lily of the Valley", "Freesia"]
+  },
+  "Ambrette Seed": {
+    "volatility": "base", "family": "Floral",
+    "descriptors": ["musky", "floral", "nutty", "soft", "natural"],
+    "pairs_well_with": ["Rose", "Jasmine", "Musk", "Sandalwood", "Bergamot", "Iris"]
+  },
+  "Ambergris": {
+    "volatility": "base", "family": "Aquatic/Marine",
+    "descriptors": ["marine", "warm", "sweet", "musky", "animalic"],
+    "pairs_well_with": ["Musk", "Sandalwood", "Rose", "Jasmine", "Sea Salt", "Vetiver"]
+  },
+  "Civet": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["animalic", "warm", "musky", "heavy", "sensual"],
+    "pairs_well_with": ["Rose", "Jasmine", "Musk", "Vanilla", "Sandalwood", "Amber"]
+  },
+  "Castoreum": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["animalic", "leathery", "sweet", "warm", "balsamic"],
+    "pairs_well_with": ["Leather", "Rose", "Jasmine", "Benzoin", "Vanilla", "Musk"]
+  },
+  "Tobacco": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["warm", "sweet", "dry", "slightly earthy", "rich"],
+    "pairs_well_with": ["Vanilla", "Honey", "Rose", "Sandalwood", "Leather", "Coffee", "Hay"]
+  },
+  "Leather": {
+    "volatility": "base", "family": "Oriental",
+    "descriptors": ["animalic", "dry", "warm", "slightly smoky", "rich"],
+    "pairs_well_with": ["Tobacco", "Birch Tar", "Rose", "Jasmine", "Sandalwood", "Vetiver", "Styrax"]
+  },
+  "Smoke": {
+    "volatility": "base", "family": "Earthy/Mossy",
+    "descriptors": ["smoky", "dry", "warm", "woody", "burnt"],
+    "pairs_well_with": ["Vetiver", "Birch Tar", "Cedarwood", "Leather", "Guaiac Wood", "Incense"]
+  },
+  "Driftwood": {
+    "volatility": "base", "family": "Aquatic/Marine",
+    "descriptors": ["woody", "salty", "warm", "slightly smoky", "beachy"],
+    "pairs_well_with": ["Sea Salt", "Musk", "Sandalwood", "Cedarwood", "Ambergris"]
+  },
+  "Benzyl Salicylate": {
+    "volatility": "base", "family": "Floral",
+    "descriptors": ["floral", "balsamic", "slightly sweet", "warm", "powdery"],
+    "pairs_well_with": ["Musk", "Rose", "Jasmine", "Sandalwood", "Lavender", "Lily of the Valley"]
+  },
+  "Galaxolide": {
+    "volatility": "base", "family": "Floral",
+    "descriptors": ["musky", "clean", "powdery", "slightly sweet", "diffusive"],
+    "pairs_well_with": ["Musk", "Rose", "Sandalwood", "Vanilla", "Bergamot"]
+  },
+  "Habanolide": {
+    "volatility": "base", "family": "Floral",
+    "descriptors": ["musky", "clean", "slightly fruity", "warm", "light"],
+    "pairs_well_with": ["Musk", "Rose", "Sandalwood", "Bergamot", "Galaxolide"]
+  },
+  "Ethylene Brassylate": {
+    "volatility": "base", "family": "Floral",
+    "descriptors": ["musky", "sweet", "clean", "slightly fruity", "natural"],
+    "pairs_well_with": ["Musk", "Rose", "Sandalwood", "Vanilla", "Habanolide"]
+  },
+  "Aldehydes C-10": {
+    "volatility": "top", "family": "Floral",
+    "descriptors": ["waxy", "soapy", "citrusy", "clean", "metallic"],
+    "pairs_well_with": ["Rose", "Jasmine", "Iris", "Musk", "Sandalwood"]
+  },
+  "Aldehydes C-11": {
+    "volatility": "top", "family": "Floral",
+    "descriptors": ["waxy", "fatty", "fresh", "rose-like", "clean"],
+    "pairs_well_with": ["Rose", "Jasmine", "Iris", "Musk", "Sandalwood", "Aldehydes C-10"]
+  },
+  "Aldehydes C-12": {
+    "volatility": "top", "family": "Floral",
+    "descriptors": ["waxy", "powdery", "sweet", "slightly fruity", "clean"],
+    "pairs_well_with": ["Rose", "Jasmine", "Iris", "Musk", "Sandalwood", "Aldehydes C-11"]
+  }
+}

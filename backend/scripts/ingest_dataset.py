@@ -95,7 +95,8 @@ def ingest():
         )
     print(f"  Stored {collection.count()} documents in {_CHROMA_DIR}")
 
-    _generate_note_profiles(df)
+    if not os.path.exists(_PROFILES_PATH):
+        _generate_note_profiles(df)
 
 
 def _generate_note_profiles(df: pd.DataFrame):

@@ -3,6 +3,7 @@ import re
 from flask import Blueprint, request, jsonify
 from services.generate_fragrance import generate_fragrance_from_description
 from services.feedback import save_feedback, get_metrics
+from services.shares import save_share, get_share
 from services.tools.search_tool import search_fragrance_db
 from services.nlp import get_all_notes, get_all_families
 from limiter import limiter
@@ -116,3 +117,36 @@ def families():
 @limiter.limit("60 per minute")
 def metrics():
     return jsonify(get_metrics())
+
+
+@api_blueprint.route("/share", methods=["POST"])
+@limiter.limit("10 per hour")
+def create_share():
+    data = request.get_json(silent=True) or {}
+    description = _sanitize(str(data.get("input_description", "")))
+    if not description:
+        return jsonify({"error": "input_description is required"}), 400
+    composition = data.get("composition")
+    if not isinstance(composition, dict):
+        return jsonify({"error": "composition is required"}), 400
+    try:
+        token = save_share(description, composition)
+    except Exception:
+        logger.exception("Share save failed")
+        return jsonify({"error": "Failed to create share link. Please try again."}), 500
+    return jsonify({"token": token}), 201
+
+
+@api_blueprint.route("/share/<token>", methods=["GET"])
+@limiter.limit("120 per hour")
+def fetch_share(token: str):
+    if not token.isalnum() or len(token) != 32:
+        return jsonify({"error": "Invalid share token"}), 400
+    try:
+        result = get_share(token)
+    except Exception:
+        logger.exception("Share lookup failed for token=%r", token)
+        return jsonify({"error": "Failed to retrieve shared fragrance."}), 500
+    if result is None:
+        return jsonify({"error": "Share not found"}), 404
+    return jsonify(result)

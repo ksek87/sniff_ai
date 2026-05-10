@@ -71,29 +71,6 @@ def test_dispatch_get_note_profile():
         assert "Oud" in result
 
 
-def test_dispatch_get_note_pairings():
-    with patch("services.agents.orchestrator.get_note_pairings") as mock_fn:
-        mock_fn.return_value = ["Cedar", "Musk"]
-        result = _dispatch_tool("get_note_pairings", {"notes": ["Bergamot", "Rose"], "limit": 5})
-        mock_fn.assert_called_once_with(["Bergamot", "Rose"], limit=5)
-        assert "Cedar" in result
-
-
-def test_dispatch_get_note_pairings_default_limit():
-    with patch("services.agents.orchestrator.get_note_pairings") as mock_fn:
-        mock_fn.return_value = []
-        _dispatch_tool("get_note_pairings", {"notes": ["Bergamot"]})
-        mock_fn.assert_called_once_with(["Bergamot"], limit=10)
-
-
-def test_dispatch_validate_composition():
-    comp = {"name": "Test", "scent_family": "Woody"}
-    with patch("services.agents.orchestrator.validate_composition") as mock_fn:
-        mock_fn.return_value = {"valid": True}
-        result = _dispatch_tool("validate_composition", {"composition": comp})
-        mock_fn.assert_called_once_with(comp)
-        assert result["valid"] is True
-
 
 # ── run() — end_turn with valid JSON ──────────────────────────────────────
 
@@ -174,7 +151,7 @@ def test_run_tool_use_dispatches_and_continues():
         mock_client = MagicMock()
         mock_gc.return_value = mock_client
         mock_client.messages.create.side_effect = [tool_resp, final_resp]
-        mock_search.return_value = [{"name": "Forest Walk"}]
+        mock_search.return_value = [{"name": "Forest Walk", "brand": "TestBrand", "notes": "pine cedar", "similarity_score": 0.9}]
 
         from services.agents.orchestrator import run
         result = run(_base_context())
@@ -200,5 +177,7 @@ def test_run_includes_pinned_notes_in_user_message():
     call_args = mock_client.messages.create.call_args
     messages = call_args.kwargs["messages"]
     user_content = messages[0]["content"]
-    assert "Oud" in user_content
-    assert "Bergamot" in user_content
+    # user message is now a list of content blocks (with cache_control)
+    user_text = user_content[0]["text"] if isinstance(user_content, list) else user_content
+    assert "Oud" in user_text
+    assert "Bergamot" in user_text

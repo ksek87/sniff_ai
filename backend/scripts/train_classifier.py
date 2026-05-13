@@ -1,35 +1,28 @@
 """
-Offline training pipeline for ScentClassifier.
+Offline training pipeline for ScentClassifier — SetFit edition.
 
-Run from the backend/ directory:
+Requires: pip install setfit
+Run from the backend/ directory on a machine with a GPU:
     python scripts/train_classifier.py
 
 Labelling strategy (applied in order, first match wins):
   1. Concept tags  — Concepts column contains known family keywords
   2. Notes voting  — majority family across notes found in note_profiles.json
 
-Outputs a classification report and confusion matrix, then writes the trained
-model to services/nlp/scent_classifier.pkl alongside a SHA-256 sidecar.
-Commit both files so Docker bakes the model in and production never retrains.
+The fine-tuned SetFit model is saved to services/nlp/scent_classifier_model/.
+Push it to HF Hub and set SCENT_CLASSIFIER_MODEL env-var in the Docker image,
+or commit the directory directly if storage is acceptable.
 """
 from __future__ import annotations
 import ast
-import hashlib
 import json
 import os
-import pickle
 import sys
 
 import numpy as np
 import pandas as pd
-from sklearn.calibration import CalibratedClassifierCV
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, confusion_matrix, f1_score
-from sklearn.model_selection import cross_val_score, StratifiedKFold, train_test_split
-from sklearn.pipeline import Pipeline
-from sklearn.svm import LinearSVC
+from sklearn.model_selection import train_test_split
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -39,10 +32,14 @@ _DATASET_PATH = os.path.join(
 _PROFILES_PATH = os.path.join(
     os.path.dirname(__file__), "../data/note_profiles.json"
 )
-_MODEL_PATH = os.path.join(
-    os.path.dirname(__file__), "../services/nlp/scent_classifier.pkl"
+_MODEL_OUT = os.path.join(
+    os.path.dirname(__file__), "../services/nlp/scent_classifier_model"
 )
-_HASH_PATH = _MODEL_PATH + ".sha256"
+
+# Base model — paraphrase-mpnet-base-v2 (768-dim) gives better semantic
+# understanding than all-MiniLM-L6-v2 (384-dim) for classification tasks.
+# Swap for a larger model (e.g. all-mpnet-base-v2) if GPU memory allows.
+_BASE_MODEL = "sentence-transformers/paraphrase-mpnet-base-v2"
 
 _CONCEPT_MAP: dict[str, str] = {
     "Floral": "Floral", "Rose": "Floral", "Jasmine": "Floral", "Lily": "Floral",
@@ -68,7 +65,6 @@ def _concepts_to_family(raw: str) -> str | None:
 
 
 def _build_note_lookup() -> dict[str, str]:
-    """Lowercase + base-name (strip parenthetical variant) → family."""
     if not os.path.exists(_PROFILES_PATH):
         return {}
     with open(_PROFILES_PATH) as f:
@@ -79,8 +75,7 @@ def _build_note_lookup() -> dict[str, str]:
         if fam == "unknown":
             continue
         lookup[note.lower()] = fam
-        base = note.split("(")[0].strip().lower()
-        lookup.setdefault(base, fam)
+        lookup.setdefault(note.split("(")[0].strip().lower(), fam)
     return lookup
 
 
@@ -94,129 +89,119 @@ def _notes_to_family(raw: str, lookup: dict[str, str]) -> str | None:
         fam = lookup.get(note.lower()) or lookup.get(note.split("(")[0].strip().lower())
         if fam:
             votes[fam] = votes.get(fam, 0) + 1
-    if not votes:
-        return None
-    return max(votes, key=votes.get)
-
-
-def _sha256(path: str) -> str:
-    h = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(65536), b""):
-            h.update(chunk)
-    return h.hexdigest()
+    return max(votes, key=votes.get) if votes else None
 
 
 def main() -> None:
+    # ── Load and label dataset ────────────────────────────────────────────
     print(f"Loading dataset: {_DATASET_PATH}")
-    df = pd.read_csv(_DATASET_PATH)
-    df = df.dropna(subset=["Description"])
+    df = pd.read_csv(_DATASET_PATH).dropna(subset=["Description"])
 
-    # ── Label: concept tags first, note voting as fallback ────────────────
     note_lookup = _build_note_lookup()
     df["family"] = df["Concepts"].apply(_concepts_to_family)
     df["source"] = "concept"
 
     needs_label = df["family"].isna()
     df.loc[needs_label, "family"] = df.loc[needs_label, "Notes"].apply(
-        lambda raw: _notes_to_family(raw, note_lookup)
+        lambda r: _notes_to_family(r, note_lookup)
     )
     df.loc[needs_label & df["family"].notna(), "source"] = "notes"
 
     concept_n = (df["source"] == "concept").sum()
     note_n    = (df["source"] == "notes").sum()
     missing_n = df["family"].isna().sum()
-
     df = df.dropna(subset=["family"])
-    X = df["Description"].astype(str).tolist()
-    y = df["family"].tolist()
-    # Concept-tag labels are cleaner; note-voted labels get half weight
-    sample_weight = (df["source"] == "concept").map({True: 1.0, False: 0.5}).tolist()
 
     print(f"\nLabelling sources:")
     print(f"  Concept tags : {concept_n:,}")
     print(f"  Notes voting : {note_n:,}")
     print(f"  Unlabelled   : {missing_n:,}  (dropped)")
-    print(f"  Total        : {len(y):,}")
-
-    counts = pd.Series(y).value_counts()
+    print(f"  Total        : {len(df):,}")
     print(f"\nClass distribution:")
-    print(counts.to_string())
+    print(df["family"].value_counts().to_string())
 
-    # ── Evaluate on concept-labelled rows only (clean ground truth) ──────
-    concept_mask = np.array(df["source"].tolist()) == "concept"
-    X_clean = [X[i] for i in np.where(concept_mask)[0]]
-    y_clean = [y[i] for i in np.where(concept_mask)[0]]
-
-    idx_clean = np.arange(len(X_clean))
-    idx_train_c, idx_test_c = train_test_split(
-        idx_clean, test_size=0.2, random_state=42, stratify=y_clean
+    # ── Train/test split on concept-labelled rows (clean ground truth) ───
+    concept_df = df[df["source"] == "concept"].reset_index(drop=True)
+    train_c, test_c = train_test_split(
+        concept_df, test_size=0.2, random_state=42, stratify=concept_df["family"]
     )
-    X_train_c = [X_clean[i] for i in idx_train_c]
-    y_train_c = [y_clean[i] for i in idx_train_c]
-    X_test_c  = [X_clean[i] for i in idx_test_c]
-    y_test_c  = [y_clean[i] for i in idx_test_c]
 
-    tfidf = TfidfVectorizer(max_features=10000, ngram_range=(1, 2))
+    # All labelled rows for training; concept rows get higher weight
+    train_all = df.copy()
+    sample_weights = np.where(train_all["source"] == "concept", 1.0, 0.5)
 
-    candidates = {
-        "LogisticRegression": LogisticRegression(max_iter=500, C=1.0, class_weight="balanced"),
-        "LinearSVC":          CalibratedClassifierCV(LinearSVC(max_iter=2000, C=1.0, class_weight="balanced")),
-        "RandomForest":       RandomForestClassifier(n_estimators=200, class_weight="balanced", n_jobs=-1, random_state=42),
-    }
+    print(f"\nTrain (all sources): {len(train_all):,}  |  Test (concept only): {len(test_c):,}")
 
-    print(f"\n── Model comparison — concept-labelled hold-out (n_test={len(X_test_c):,}) ──")
-    print(f"{'Model':<22} {'Accuracy':>9} {'Macro-F1':>10}")
-    print("-" * 44)
+    # ── SetFit training ───────────────────────────────────────────────────
+    try:
+        from setfit import SetFitModel, Trainer, TrainingArguments
+        from datasets import Dataset
+    except ImportError:
+        print("\nERROR: setfit not installed. Run: pip install setfit datasets")
+        sys.exit(1)
 
-    best_name, best_f1, best_clf = "", 0.0, None
-    for name, clf in candidates.items():
-        pipe = Pipeline([("tfidf", tfidf), ("clf", clf)])
-        pipe.fit(X_train_c, y_train_c)
-        y_pred_c = pipe.predict(X_test_c)
-        acc_c = np.mean(np.array(y_pred_c) == np.array(y_test_c))
-        f1_c  = f1_score(y_test_c, y_pred_c, average="macro", zero_division=0)
-        print(f"{name:<22} {acc_c:>9.3f} {f1_c:>10.3f}")
-        if f1_c > best_f1:
-            best_f1, best_name, best_clf = f1_c, name, clf
+    print(f"\nLoading base model: {_BASE_MODEL}")
+    model = SetFitModel.from_pretrained(
+        _BASE_MODEL,
+        labels=sorted(df["family"].unique().tolist()),
+    )
 
-    print(f"\nBest: {best_name}  (macro-F1 {best_f1:.3f})")
+    train_dataset = Dataset.from_dict({
+        "text":  train_all["Description"].astype(str).tolist(),
+        "label": train_all["family"].tolist(),
+    })
+    test_dataset = Dataset.from_dict({
+        "text":  test_c["Description"].astype(str).tolist(),
+        "label": test_c["family"].tolist(),
+    })
 
-    # Full report + confusion matrix for the winner
-    best_pipe = Pipeline([("tfidf", tfidf), ("clf", best_clf)])
-    best_pipe.fit(X_train_c, y_train_c)
-    y_pred_best = best_pipe.predict(X_test_c)
-    print(f"\n── {best_name} — full classification report ──────────────────────────")
-    print(classification_report(y_test_c, y_pred_best, zero_division=0))
+    args = TrainingArguments(
+        output_dir="setfit_output",
+        num_epochs=3,              # contrastive fine-tuning epochs
+        batch_size=32,
+        num_iterations=20,         # pairs per class per epoch
+        evaluation_strategy="epoch",
+        save_strategy="no",
+        load_best_model_at_end=False,
+        report_to="none",
+    )
 
-    labels = sorted(set(y_clean))
-    cm = confusion_matrix(y_test_c, y_pred_best, labels=labels)
+    trainer = Trainer(
+        model=model,
+        args=args,
+        train_dataset=train_dataset,
+        eval_dataset=test_dataset,
+        metric="f1",
+        metric_kwargs={"average": "macro"},
+    )
+
+    print("\nFine-tuning…")
+    trainer.train()
+
+    # ── Evaluate ──────────────────────────────────────────────────────────
+    y_pred = model.predict(test_c["Description"].astype(str).tolist())
+    y_true = test_c["family"].tolist()
+
+    print(f"\n── SetFit ({_BASE_MODEL}) — concept-labelled hold-out ──────────────")
+    print(classification_report(y_true, y_pred, zero_division=0))
+
+    labels = sorted(set(y_true))
+    cm = confusion_matrix(y_true, y_pred, labels=labels)
     print("── Confusion matrix (rows=true, cols=predicted) ─────────────────")
     col_w = max(len(l) for l in labels) + 2
     print("".ljust(col_w) + "".join(l.ljust(col_w) for l in labels))
     for label, row in zip(labels, cm):
         print(label.ljust(col_w) + "".join(str(v).ljust(col_w) for v in row))
 
-    # ── Retrain winner on full dataset (concept + note-labelled) and save ──
-    print(f"\nRetraining {best_name} on full dataset ({len(X):,} samples)…")
-    full_pipeline = Pipeline([
-        ("tfidf", TfidfVectorizer(max_features=10000, ngram_range=(1, 2))),
-        ("clf", best_clf),
-    ])
-    full_pipeline.fit(X, y, clf__sample_weight=sample_weight)
+    macro_f1 = f1_score(y_true, y_pred, average="macro", zero_division=0)
+    print(f"\nMacro-F1: {macro_f1:.3f}")
 
-    os.makedirs(os.path.dirname(_MODEL_PATH), exist_ok=True)
-    with open(_MODEL_PATH, "wb") as f:
-        pickle.dump(full_pipeline, f)
-
-    digest = _sha256(_MODEL_PATH)
-    with open(_HASH_PATH, "w") as f:
-        f.write(digest)
-
-    size_kb = os.path.getsize(_MODEL_PATH) / 1024
-    print(f"\nSaved: {_MODEL_PATH}  ({size_kb:.0f} KB)")
-    print(f"SHA-256: {digest}")
-    print("\nCommit both scent_classifier.pkl and scent_classifier.pkl.sha256.")
+    # ── Save ──────────────────────────────────────────────────────────────
+    os.makedirs(_MODEL_OUT, exist_ok=True)
+    model.save_pretrained(_MODEL_OUT)
+    print(f"\nSaved model to: {_MODEL_OUT}")
+    print("Push to HF Hub with: model.push_to_hub('ksek87/sniff-ai-scent-classifier')")
+    print("Then set SCENT_CLASSIFIER_MODEL=ksek87/sniff-ai-scent-classifier in Docker.")
 
 
 if __name__ == "__main__":

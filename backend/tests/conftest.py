@@ -62,7 +62,7 @@ def client():
     with (
         patch("services.nlp.note_extractor.NoteExtractor._load_notes"),
         patch("services.nlp.note_extractor.NoteExtractor._build_ruler"),
-        patch("services.nlp.scent_classifier.ScentClassifier._load_or_train"),
+        patch("services.nlp.scent_classifier.ScentClassifier._load"),
         patch("services.agents._client.anthropic"),
         patch("services.tools.search_tool._get_collection") as mock_coll,
         patch("services.generate_fragrance.orchestrator.run") as mock_orch,

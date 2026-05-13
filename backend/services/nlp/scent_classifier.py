@@ -6,14 +6,18 @@ import os
 import pickle
 
 import numpy as np
-from sklearn.pipeline import Pipeline
 
 logger = logging.getLogger(__name__)
 
-# Committed alongside this module; baked into Docker at build time.
-# Retrain with: python backend/scripts/train_classifier.py, then commit the pkl.
-_MODEL_PATH = os.path.join(os.path.dirname(__file__), "scent_classifier.pkl")
-_HASH_PATH = _MODEL_PATH + ".sha256"
+# SetFit model directory takes priority; falls back to legacy pkl.
+# Set SCENT_CLASSIFIER_MODEL env-var to a HF Hub repo ID or local path
+# to override the default location.
+_SETFIT_DIR = os.getenv(
+    "SCENT_CLASSIFIER_MODEL",
+    os.path.join(os.path.dirname(__file__), "scent_classifier_model"),
+)
+_PKL_PATH  = os.path.join(os.path.dirname(__file__), "scent_classifier.pkl")
+_HASH_PATH = _PKL_PATH + ".sha256"
 
 _CONCEPT_MAP: dict[str, str] = {
     "Floral": "Floral", "Rose": "Floral", "Jasmine": "Floral", "Lily": "Floral",
@@ -49,38 +53,68 @@ def _file_sha256(path: str) -> str:
 
 class ScentClassifier:
     def __init__(self):
-        self._pipeline: Pipeline | None = None
-        self._load_or_train()
+        self._setfit = None   # SetFitModel, if available
+        self._clf    = None   # sklearn classifier (legacy pkl fallback)
+        self._load()
 
-    def _load_or_train(self):
-        if not os.path.exists(_MODEL_PATH):
+    def _load(self):
+        # ── Prefer SetFit model ───────────────────────────────────────────
+        setfit_config = os.path.join(_SETFIT_DIR, "config_setfit.json")
+        if os.path.isfile(setfit_config) or (
+            not os.path.isabs(_SETFIT_DIR) is False
+            and not _SETFIT_DIR.startswith("/")
+        ):
+            try:
+                from setfit import SetFitModel
+                self._setfit = SetFitModel.from_pretrained(_SETFIT_DIR)
+                logger.info("Loaded SetFit classifier from %s", _SETFIT_DIR)
+                return
+            except Exception as e:
+                logger.warning("SetFit load failed (%s) — falling back to pkl", e)
+
+        # ── Legacy pkl fallback ───────────────────────────────────────────
+        if not os.path.exists(_PKL_PATH):
             logger.warning(
-                "scent_classifier.pkl not found at %s — using default family. "
-                "Run backend/scripts/train_classifier.py and commit the pkl.",
-                _MODEL_PATH,
+                "No classifier found (checked %s and %s). "
+                "Run backend/scripts/train_classifier.py.",
+                _SETFIT_DIR, _PKL_PATH,
             )
             return
 
         if os.path.exists(_HASH_PATH):
             with open(_HASH_PATH) as f:
                 expected = f.read().strip()
-            actual = _file_sha256(_MODEL_PATH)
+            actual = _file_sha256(_PKL_PATH)
             if actual != expected:
                 logger.error(
-                    "scent_classifier.pkl SHA-256 mismatch (expected %s…, got %s…) "
-                    "— refusing to load. Retrain and commit a fresh pkl.",
-                    expected[:16], actual[:16],
+                    "scent_classifier.pkl SHA-256 mismatch — refusing to load."
                 )
                 return
 
-        with open(_MODEL_PATH, "rb") as f:
-            self._pipeline = pickle.load(f)
-        logger.info("Loaded scent_classifier.pkl from %s", _MODEL_PATH)
+        with open(_PKL_PATH, "rb") as f:
+            payload = pickle.load(f)
+
+        if isinstance(payload, dict):
+            self._clf = payload["clf"]
+            logger.info("Loaded embedding-based classifier (%s) from pkl", payload.get("clf_name"))
+        else:
+            self._clf = payload
+            logger.info("Loaded TF-IDF pipeline classifier from pkl")
 
     def predict(self, text: str) -> tuple[str, float]:
-        if self._pipeline is None:
-            return _DEFAULT_FAMILY, 0.0
-        proba = self._pipeline.predict_proba([text])[0]
-        idx = int(np.argmax(proba))
-        family = self._pipeline.classes_[idx]
-        return family, float(proba[idx])
+        # ── SetFit path ───────────────────────────────────────────────────
+        if self._setfit is not None:
+            proba = self._setfit.predict_proba([text])[0]
+            idx = int(np.argmax(proba))
+            labels = self._setfit.labels
+            return labels[idx], float(proba[idx])
+
+        # ── Legacy pkl path ───────────────────────────────────────────────
+        if self._clf is not None:
+            from .embedder import Embedder
+            vec = np.array(Embedder().encode(text)).reshape(1, -1)
+            proba = self._clf.predict_proba(vec)[0]
+            idx = int(np.argmax(proba))
+            return self._clf.classes_[idx], float(proba[idx])
+
+        return _DEFAULT_FAMILY, 0.0

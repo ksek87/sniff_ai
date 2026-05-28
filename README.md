@@ -1,18 +1,18 @@
-# Sniff AI
+# Sniff AI — AI Fragrance Composer
 
-**[Try it live →](https://ksek87.github.io/sniff_ai/)**
+**Generate professional perfume compositions from natural language descriptions.**
+
+[![Live Demo](https://img.shields.io/badge/Try%20it%20live-→-brightgreen?style=for-the-badge)](https://ksek87.github.io/sniff_ai/)
+[![Backend](https://img.shields.io/badge/Backend-Hugging%20Face%20Spaces-yellow?style=for-the-badge)](https://huggingface.co/spaces/ksek87/sniff_ai)
+[![Frontend](https://img.shields.io/badge/Frontend-GitHub%20Pages-blue?style=for-the-badge)](https://ksek87.github.io/sniff_ai/)
 
 ---
 
-## The idea
-
-Fragrance is one of the most emotionally vivid senses, but describing a scent you want is almost impossible without a perfumer's vocabulary. People reach for metaphors — *"a walk through a pine forest after rain"*, *"warm, like old books and amber"*, *"the sea at five in the morning"* — but those descriptions live in a completely different language from the ingredient lists, volatility classes, and accord structures that actually make a perfume.
-
-Sniff AI bridges that gap. You describe a feeling or a memory in plain language. It produces a professional fragrance composition — a notes pyramid with percentages, a name, a poetic description written back in your register, and real-world references from a database of 13,644 fragrances. No perfumery knowledge required.
+Sniff AI translates the way people *actually* talk about scent — moods, memories, metaphors — into structured, perfumer-grade fragrance compositions. Describe a feeling in plain language; get back a full notes pyramid, a name, a poetic description, and real-world fragrance references.
 
 > *"A thunderstorm over a pine forest at dusk"* → **Twilight Pine Accord** — Woody Aromatic · Bergamot + Petitgrain · Pine Needle + Clary Sage · Cedarwood + Musk
 
-The core problem is translation: from subjective, sensory language to structured, technical knowledge. That's what makes it an interesting AI engineering problem — it's not enough to ask an LLM to "make a perfume". The model needs to be grounded in real fragrance data, guided by domain signals (what scent family does this description suggest? which notes did the user explicitly name?), and constrained by perfumery rules (volatility balance, note compatibility, percentages summing to 100). Getting that right without hallucinated notes or unconstrained output is the design challenge the architecture is built around.
+The hard problem is **translation**: subjective sensory language → structured technical knowledge. The architecture grounds the model in a database of 13,644 real fragrances, uses domain signals (scent family classification, named ingredient recognition) to guide generation, and enforces perfumery constraints (volatility balance, percentages summing to 100). The result is compositions that feel intentional rather than hallucinated.
 
 → **[Full architecture and engineering decisions](ARCHITECTURE.md)**
 
@@ -20,20 +20,22 @@ The core problem is translation: from subjective, sensory language to structured
 
 ## Features
 
-- **Natural language input** — describe a mood, memory, or scene
-- **Notes pyramid** — top / heart / base breakdown with percentages summing to 100%
-- **Pinned notes** — constrain the composition to specific ingredients
-- **Reference fragrances** — real-world matches from 13,644 records
-- **Share** — save any composition to a permanent link
-- **Feedback** — 1–5 star rating with optional comment
+| Feature | Description |
+|---|---|
+| Natural language input | Describe a mood, memory, or scene — no perfumery vocabulary needed |
+| Notes pyramid | Top / heart / base breakdown with percentages summing to 100% |
+| Pinned notes | Lock specific ingredients into the composition |
+| Reference fragrances | Real-world matches from 13,644 indexed records |
+| Shareable compositions | Save any result to a permanent link |
+| Feedback | 1–5 star rating with optional comment |
 
 ---
 
-## Tech stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| LLM | Anthropic Claude claude-sonnet-4-6 |
+| LLM | Anthropic Claude API |
 | Vector store | ChromaDB (cosine HNSW) |
 | Embeddings | `sentence-transformers/all-MiniLM-L6-v2` |
 | NER | spaCy `EntityRuler` |
@@ -44,19 +46,21 @@ The core problem is translation: from subjective, sensory language to structured
 
 ---
 
-## API
+## API Reference
 
-All endpoints under `/api/v1/`.
+Base path: `/api/v1/`
 
 | Method | Path | Rate limit | Purpose |
 |---|---|---|---|
-| POST | `/generate` | 5 / hour | Generate fragrance from description + optional pinned notes |
-| POST | `/feedback` | 20 / hour | Submit star rating |
-| GET | `/notes` | — | All available fragrance note names |
-| GET | `/metrics` | 60 / min | Aggregated feedback statistics |
-| POST | `/share` | 10 / hour | Save a composition, get a shareable token |
-| GET | `/share/<token>` | 120 / hour | Retrieve a shared composition |
-| GET | `/health` | — | Liveness check |
+| `POST` | `/generate` | 5 / hour | Generate fragrance from description + optional pinned notes |
+| `POST` | `/feedback` | 20 / hour | Submit star rating |
+| `GET` | `/notes` | — | All available fragrance note names |
+| `GET` | `/metrics` | 60 / min | Aggregated feedback statistics |
+| `POST` | `/share` | 10 / hour | Save a composition, get a shareable token |
+| `GET` | `/share/<token>` | 120 / hour | Retrieve a shared composition |
+| `GET` | `/health` | — | Liveness check |
+
+**Example — generate a fragrance:**
 
 ```jsonc
 // POST /api/v1/generate
@@ -78,9 +82,18 @@ All endpoints under `/api/v1/`.
 
 ---
 
-## Local development
+## Local Development
 
 **Prerequisites:** Python 3.11+, Node 18+, `ANTHROPIC_API_KEY`
+
+**Option 1 — Docker Compose (recommended)**
+
+```bash
+cp .env.example .env   # add ANTHROPIC_API_KEY
+docker compose up --build
+```
+
+**Option 2 — Manual**
 
 ```bash
 # Backend
@@ -93,13 +106,6 @@ ANTHROPIC_API_KEY=sk-ant-... python app.py
 cd frontend
 npm ci --legacy-peer-deps
 REACT_APP_API_URL=http://localhost:5000 npm start
-```
-
-**Docker Compose (recommended)**
-
-```bash
-cp .env.example .env   # add ANTHROPIC_API_KEY
-docker compose up --build
 ```
 
 ---
@@ -118,4 +124,8 @@ cd frontend && npx tsc --noEmit
 
 ## Deployment
 
-Backend runs on Hugging Face Spaces (Docker, port 7860). Frontend on GitHub Pages. Both deploy automatically on push to `main` via GitHub Actions. See [ARCHITECTURE.md](ARCHITECTURE.md) for deployment details.
+Backend deploys to **Hugging Face Spaces** (Docker, port 7860); frontend to **GitHub Pages**. Both deploy automatically on push to `main` via GitHub Actions.
+
+The HF Space must have `CORS_ORIGINS=https://ksek87.github.io` set, and GitHub Pages source must be configured to **GitHub Actions** (not "Deploy from branch").
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for full deployment details.
